@@ -1,0 +1,2256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINDRIFT — Your Mental Wellness Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070b14;
+  --surface: #0d1524;
+  --surface2: #111d2e;
+  --border: rgba(99,179,237,0.12);
+  --accent: #63b3ed;
+  --accent2: #9f7aea;
+  --accent3: #68d391;
+  --danger: #fc8181;
+  --warning: #f6ad55;
+  --text: #e2e8f0;
+  --muted: #718096;
+  --cyan: #76e4f7;
+}
+body.light-mode {
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --surface2: #e8edf5;
+  --border: rgba(49,130,206,0.15);
+  --accent: #3182ce;
+  --accent2: #6b46c1;
+  --accent3: #276749;
+  --danger: #c53030;
+  --warning: #c05621;
+  --text: #1a202c;
+  --muted: #4a5568;
+  --cyan: #0987a0;
+}
+body.light-mode::before{background:radial-gradient(ellipse 80% 50% at 20% 20%,rgba(49,130,206,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(107,70,193,0.07) 0%,transparent 60%);}
+body.light-mode header{background:rgba(240,244,248,.92);}
+body.light-mode .chat-bubble.user{color:#fff;}
+body.light-mode .auth-card,.light-mode .ob-wrap{box-shadow:0 8px 40px rgba(0,0,0,0.08);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .3s ease,color .3s ease;}
+
+/* ─── THEME TOGGLE ─── */
+.theme-toggle{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:1rem;transition:all .2s;flex-shrink:0;}
+.theme-toggle:hover{border-color:var(--accent);transform:rotate(20deg);}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 20%,rgba(99,179,237,0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(159,122,234,0.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* ─── SCROLL BAR ─── */
+::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes popIn{from{opacity:0;transform:scale(0.92);}to{opacity:1;transform:scale(1);}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-16px);}to{opacity:1;transform:translateX(0);}}
+@keyframes shimmer{0%,100%{opacity:.5;}50%{opacity:1;}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+@keyframes sosPulse{0%,100%{box-shadow:0 0 0 0 rgba(252,129,129,.4);}50%{box-shadow:0 0 0 24px rgba(252,129,129,0);}}
+@keyframes breatheIn{from{transform:scale(1);opacity:.7;}to{transform:scale(1.6);opacity:1;}}
+@keyframes breatheOut{from{transform:scale(1.6);opacity:1;}to{transform:scale(1);opacity:.7;}}
+@keyframes ticker{from{transform:translateX(100%);}to{transform:translateX(-100%);}}
+@keyframes countUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes gradShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes notifSlide{from{opacity:0;transform:translateX(120%);}to{opacity:1;transform:translateX(0);}}
+@keyframes notifOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(120%);}}
+
+/* ─── SPLASH ─── */
+#splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;transition:opacity .8s ease,visibility .8s;}
+#splash.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.splash-logo{font-family:'Syne',sans-serif;font-size:clamp(3rem,10vw,5.5rem);font-weight:800;letter-spacing:-2px;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 3s ease infinite,pulse 2s ease-in-out infinite;}
+.splash-tagline{font-size:.9rem;color:var(--muted);margin-top:14px;letter-spacing:3px;text-transform:uppercase;animation:fadeUp 1s ease .5s both;}
+.splash-bar{margin-top:48px;width:220px;height:2px;background:var(--surface2);border-radius:2px;overflow:hidden;}
+.splash-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));animation:splash-load 2.8s ease forwards;}
+@keyframes splash-load{from{width:0;}to{width:100%;}}
+
+/* ─── AUTH ─── */
+#auth-screen{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:1500;padding:24px;}
+#auth-screen.visible{display:flex;}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px;width:100%;max-width:440px;animation:popIn .5s ease;}
+.auth-logo{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:6px;}
+.auth-sub{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:32px;}
+.auth-tabs{display:flex;gap:4px;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:28px;}
+.auth-tab{flex:1;padding:9px;border:none;border-radius:7px;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.875rem;cursor:pointer;transition:all .2s;font-weight:500;}
+.auth-tab.active{background:var(--accent);color:#070b14;font-weight:700;}
+.auth-field{margin-bottom:16px;}
+.auth-field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:8px;font-weight:500;}
+.auth-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;}
+.auth-input:focus{border-color:var(--accent);}
+.auth-input::placeholder{color:var(--muted);}
+.auth-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;-webkit-appearance:none;}
+.auth-select option{background:var(--surface2);}
+.btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;margin-top:8px;transition:opacity .2s;}
+.btn-auth:hover{opacity:.9;}
+.auth-divider{text-align:center;color:var(--muted);font-size:.8rem;margin:16px 0;position:relative;}
+.auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border);}
+.auth-divider::before{left:0;} .auth-divider::after{right:0;}
+.auth-course-note{font-size:.75rem;color:var(--muted);margin-top:6px;}
+
+/* ─── ONBOARDING ─── */
+#onboarding-screen{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:1400;padding:20px;overflow-y:auto;}
+#onboarding-screen.visible{display:flex;}
+.ob-wrap{width:100%;max-width:520px;margin:auto;}
+.ob-progress-bar{width:100%;height:3px;background:var(--surface2);border-radius:2px;margin-bottom:32px;overflow:hidden;}
+.ob-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+.ob-step{display:none;animation:fadeUp .4s ease;}
+.ob-step.active{display:block;}
+.ob-step-label{font-size:.72rem;color:var(--accent);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.ob-question{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;line-height:1.25;letter-spacing:-.5px;margin-bottom:6px;}
+.ob-sub{font-size:.85rem;color:var(--muted);margin-bottom:24px;line-height:1.5;}
+.ob-options{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+.ob-opt{padding:10px 18px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;transition:all .2s;font-weight:500;}
+.ob-opt:hover{border-color:var(--accent);color:var(--text);}
+.ob-opt.selected{border-color:var(--accent2);color:var(--accent2);background:rgba(159,122,234,.12);font-weight:600;}
+.ob-opt-wide{width:100%;text-align:left;border-radius:12px;padding:13px 18px;}
+.ob-opt-wide.selected{background:rgba(159,122,234,.1);}
+.ob-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;margin-bottom:24px;}
+.ob-input:focus{border-color:var(--accent);}
+.ob-input::placeholder{color:var(--muted);}
+.ob-nav{display:flex;gap:10px;align-items:center;}
+.ob-btn-next{flex:1;padding:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .2s;}
+.ob-btn-next:hover{opacity:.9;transform:translateY(-1px);}
+.ob-btn-back{padding:13px 18px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.ob-btn-back:hover{color:var(--text);border-color:var(--text);}
+.ob-skip{text-align:center;margin-top:14px;font-size:.78rem;color:var(--muted);cursor:pointer;transition:color .2s;}
+.ob-skip:hover{color:var(--text);}
+.ob-skip a{color:var(--muted);text-decoration:underline;}
+.ob-privacy{display:flex;align-items:flex-start;gap:8px;background:rgba(99,179,237,.05);border:1px solid rgba(99,179,237,.12);border-radius:10px;padding:12px 14px;font-size:.75rem;color:var(--muted);line-height:1.5;margin-bottom:20px;}
+.ob-privacy-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+.ob-finish-card{text-align:center;padding:20px 0;}
+.ob-finish-icon{font-size:3.5rem;margin-bottom:16px;animation:bounce 1s ease infinite;}
+.ob-finish-title{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:8px;}
+.ob-finish-sub{color:var(--muted);font-size:.9rem;margin-bottom:28px;line-height:1.6;}
+.ob-profile-preview{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:24px;text-align:left;}
+.ob-profile-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:.85rem;border-bottom:1px solid var(--border);}
+.ob-profile-row:last-child{border-bottom:none;}
+.ob-profile-key{color:var(--muted);width:130px;flex-shrink:0;font-size:.78rem;}
+.ob-profile-val{color:var(--text);font-weight:500;}
+.ob-step-counter{font-size:.75rem;color:var(--muted);text-align:right;margin-bottom:6px;}
+
+/* ─── APP ─── */
+#app{display:none;min-height:100vh;position:relative;z-index:1;}
+#app.visible{display:flex;flex-direction:column;animation:fadeIn .6s ease;}
+
+/* ─── HEADER ─── */
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--border);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;background:rgba(7,11,20,.9);}
+.logo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);padding:6px 14px;border-radius:50px;font-size:.82rem;color:var(--muted);}
+.user-dot{width:7px;height:7px;border-radius:50%;background:var(--accent3);animation:shimmer 2s ease infinite;}
+.premium-badge{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(246,173,85,.15),rgba(252,129,129,.15));border:1px solid rgba(246,173,85,.3);padding:5px 12px;border-radius:50px;font-size:.75rem;font-weight:600;color:var(--warning);}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;font-size:.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.logout-btn:hover{color:var(--danger);border-color:var(--danger);}
+
+/* ─── NAV ─── */
+nav{display:flex;gap:4px;padding:14px 28px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+.nav-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.84rem;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.nav-btn:hover{color:var(--text);background:var(--surface);}
+.nav-btn.active{color:var(--accent);background:rgba(99,179,237,.1);border-color:rgba(99,179,237,.2);}
+.nav-btn .nav-icon{font-size:1rem;}
+
+/* ─── SCREENS ─── */
+.screen{display:none;padding:28px;animation:fadeIn .4s ease;}
+.screen.active{display:block;}
+.section-header{margin-bottom:28px;animation:slideIn .5s ease;}
+.section-header h2{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;letter-spacing:-.5px;}
+.section-header p{color:var(--muted);margin-top:8px;line-height:1.6;font-size:.9rem;}
+
+/* ─── HOME ─── */
+.home-hero{text-align:center;padding:48px 0 36px;animation:fadeUp .6s ease;}
+.home-hero h1{font-family:'Syne',sans-serif;font-size:clamp(1.9rem,5vw,3.2rem);font-weight:800;line-height:1.1;letter-spacing:-1px;}
+.home-hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.home-hero p{margin-top:14px;color:var(--muted);font-size:1rem;max-width:480px;margin-inline:auto;line-height:1.6;}
+.greeting-name{color:var(--accent3);}
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-top:32px;}
+.module-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;animation:popIn .5s ease both;}
+.module-card:nth-child(1){animation-delay:.05s;} .module-card:nth-child(2){animation-delay:.1s;} .module-card:nth-child(3){animation-delay:.15s;} .module-card:nth-child(4){animation-delay:.2s;} .module-card:nth-child(5){animation-delay:.25s;} .module-card:nth-child(6){animation-delay:.3s;}
+.module-card::before{content:'';position:absolute;inset:0;background:var(--card-glow,transparent);opacity:0;transition:opacity .3s;}
+.module-card:hover{transform:translateY(-4px);border-color:var(--card-accent,var(--accent));}
+.module-card:hover::before{opacity:1;}
+.module-icon{font-size:1.8rem;margin-bottom:10px;display:block;}
+.module-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:5px;}
+.module-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.module-tag{display:inline-block;margin-top:10px;font-size:.72rem;padding:3px 10px;border-radius:50px;font-weight:500;}
+.free-tag{font-size:.7rem;color:var(--accent3);margin-top:6px;display:block;}
+
+/* ─── SHARED ─── */
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;width:100%;justify-content:center;}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.typing-dots{display:inline-flex;gap:4px;align-items:center;padding:8px 0;}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bounce 1.2s ease infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;} .typing-dots span:nth-child(3){animation-delay:.4s;}
+
+/* ─── SOULSYNC ─── */
+.ss-container{max-width:700px;margin:0 auto;}
+.ss-limit-bar{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.ss-limit-info{font-size:.82rem;color:var(--muted);}
+.ss-limit-count{font-family:'Syne',sans-serif;font-weight:700;color:var(--accent);}
+.ss-upgrade-btn{padding:6px 14px;background:linear-gradient(135deg,rgba(246,173,85,.2),rgba(252,129,129,.15));border:1px solid rgba(246,173,85,.4);color:var(--warning);border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;}
+.ss-chat-window{background:var(--surface);border:1px solid var(--border);border-radius:16px;height:380px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;margin-bottom:16px;scroll-behavior:smooth;}
+.chat-msg{animation:popIn .3s ease;max-width:82%;}
+.chat-msg.user{align-self:flex-end;}
+.chat-msg.bot{align-self:flex-start;}
+.chat-bubble{padding:12px 16px;border-radius:16px;font-size:.9rem;line-height:1.7;}
+.chat-bubble.user{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border-radius:16px 16px 4px 16px;}
+.chat-bubble.bot{background:var(--surface2);color:var(--text);border-radius:4px 16px 16px 16px;border:1px solid var(--border);}
+.chat-bot-label{font-size:.72rem;color:var(--muted);margin-bottom:4px;padding-left:2px;}
+.chat-user-label{font-size:.72rem;color:var(--muted);margin-bottom:4px;text-align:right;padding-right:2px;}
+.sentiment-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:50px;font-size:.72rem;font-weight:600;margin-top:6px;}
+.sent-positive{background:rgba(104,211,145,.12);color:var(--accent3);border:1px solid rgba(104,211,145,.25);}
+.sent-neutral{background:rgba(99,179,237,.12);color:var(--accent);border:1px solid rgba(99,179,237,.25);}
+.sent-stressed{background:rgba(246,173,85,.12);color:var(--warning);border:1px solid rgba(246,173,85,.25);}
+.sent-crisis{background:rgba(252,129,129,.12);color:var(--danger);border:1px solid rgba(252,129,129,.25);}
+.ss-input-row{display:flex;gap:10px;}
+.ss-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
+.ss-input:focus{border-color:var(--accent);}
+.ss-input::placeholder{color:var(--muted);}
+.ss-send-btn{padding:12px 20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;transition:all .2s;font-size:.9rem;}
+.ss-send-btn:hover{opacity:.9;}
+.persona-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.persona-btn{padding:7px 14px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;transition:all .2s;}
+.persona-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(159,122,234,.1);}
+
+/* ─── ECHOSPACE ─── */
+.echo-container{max-width:680px;margin:0 auto;}
+.echo-filter-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.echo-filter{padding:6px 14px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.78rem;cursor:pointer;transition:all .2s;}
+.echo-filter.active{border-color:var(--accent);color:var(--accent);background:rgba(99,179,237,.08);}
+.new-post-area{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
+.new-post-area textarea{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;resize:none;min-height:80px;line-height:1.6;}
+.new-post-area textarea::placeholder{color:var(--muted);}
+.new-post-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.anon-badge{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--accent3);}
+.post-tag-row{display:flex;gap:6px;margin-bottom:10px;}
+.post-tag-btn{padding:5px 12px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.74rem;cursor:pointer;transition:all .2s;}
+.post-tag-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(159,122,234,.1);}
+.btn-post{padding:8px 18px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;}
+.posts-list{display:flex;flex-direction:column;gap:14px;}
+.post-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;animation:slideIn .4s ease both;}
+.post-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.post-header-left{display:flex;align-items:center;gap:10px;}
+.anon-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;font-family:'Syne',sans-serif;}
+.post-user{font-weight:600;font-size:.88rem;}
+.post-time{font-size:.72rem;color:var(--muted);}
+.post-topic{font-size:.7rem;padding:2px 8px;border-radius:50px;font-weight:500;}
+.post-text{font-size:.88rem;line-height:1.7;color:var(--text);}
+.post-actions{display:flex;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.post-action-btn{background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:5px;transition:color .2s;padding:0;}
+.post-action-btn:hover{color:var(--accent);}
+.replies-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:none;}
+.reply-card{background:var(--surface2);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:.84rem;line-height:1.6;}
+.reply-input-row{display:flex;gap:8px;margin-top:8px;}
+.reply-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;}
+.reply-submit{padding:8px 14px;background:var(--accent);color:#070b14;border:none;border-radius:8px;font-weight:700;font-size:.78rem;cursor:pointer;font-family:'Syne',sans-serif;}
+
+/* ─── CALMCORE ─── */
+.calm-container{max-width:720px;margin:0 auto;}
+.calm-tabs{display:flex;gap:6px;margin-bottom:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:6px;}
+.calm-tab{flex:1;padding:10px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.84rem;cursor:pointer;transition:all .2s;font-weight:500;text-align:center;}
+.calm-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;font-weight:700;}
+.calm-panel{display:none;} .calm-panel.active{display:block;animation:fadeIn .3s ease;}
+/* Breathing */
+.breathe-center{display:flex;flex-direction:column;align-items:center;padding:32px 0;}
+.breathe-mode-row{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;}
+.breathe-mode-btn{padding:8px 16px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer;transition:all .2s;}
+.breathe-mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(99,179,237,.1);}
+.breathe-orb-wrap{position:relative;width:200px;height:200px;margin:0 auto 24px;}
+.breathe-orb{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle at 40% 35%,var(--accent),var(--accent2));opacity:.7;transition:transform 0s linear,opacity 0s linear;}
+.breathe-orb-ring{position:absolute;inset:-12px;border-radius:50%;border:2px solid rgba(99,179,237,.2);animation:pulse 3s ease infinite;}
+.breathe-orb-ring2{position:absolute;inset:-24px;border-radius:50%;border:1px solid rgba(99,179,237,.1);animation:pulse 3s ease .5s infinite;}
+.breathe-label{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:700;color:var(--text);margin-bottom:6px;text-align:center;}
+.breathe-sublabel{color:var(--muted);font-size:.85rem;text-align:center;margin-bottom:24px;}
+.breathe-session-count{font-size:.78rem;color:var(--muted);margin-top:8px;}
+.breathe-start-btn{padding:12px 32px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:50px;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
+/* Exercises */
+.exercise-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+.exercise-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;}
+.exercise-card:hover{border-color:var(--accent3);transform:translateY(-2px);}
+.exercise-icon{font-size:1.8rem;margin-bottom:10px;}
+.exercise-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:5px;}
+.exercise-desc{font-size:.8rem;color:var(--muted);line-height:1.5;}
+.exercise-tag{display:inline-block;margin-top:8px;font-size:.7rem;padding:2px 8px;border-radius:50px;background:rgba(104,211,145,.12);color:var(--accent3);border:1px solid rgba(104,211,145,.2);}
+/* Meditation */
+.meditation-list{display:flex;flex-direction:column;gap:12px;}
+.meditation-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s;}
+.meditation-item:hover{border-color:var(--accent2);}
+.meditation-left{display:flex;align-items:center;gap:14px;}
+.meditation-icon{font-size:1.5rem;}
+.meditation-name{font-weight:600;font-size:.92rem;}
+.meditation-desc{font-size:.78rem;color:var(--muted);margin-top:2px;}
+.meditation-duration{font-family:'Syne',sans-serif;font-weight:700;color:var(--accent2);font-size:.85rem;}
+
+/* ─── THERAPYBRIDGE ─── */
+.tb-container{max-width:900px;margin:0 auto;}
+.tb-filter-row{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.tb-filter{padding:7px 14px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer;transition:all .2s;}
+.tb-filter.active{border-color:var(--accent);color:var(--accent);background:rgba(99,179,237,.08);}
+.therapist-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.therapist-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;transition:all .2s;animation:popIn .4s ease both;}
+.therapist-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+.therapist-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.therapist-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-family:'Syne',sans-serif;font-weight:700;}
+.therapist-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;}
+.therapist-title{font-size:.78rem;color:var(--muted);margin-top:2px;}
+.therapist-rating{font-size:.78rem;color:var(--warning);}
+.therapist-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.therapist-tag{font-size:.7rem;padding:3px 8px;border-radius:50px;background:rgba(159,122,234,.1);color:var(--accent2);border:1px solid rgba(159,122,234,.2);}
+.therapist-price{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--accent3);}
+.therapist-price-note{font-size:.72rem;color:var(--muted);}
+.therapist-availability{font-size:.78rem;color:var(--accent3);margin-top:4px;}
+.book-btn{width:100%;padding:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;margin-top:14px;transition:all .2s;}
+.book-btn:hover{opacity:.9;}
+.tb-commission-note{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:10px;}
+
+/* ─── LIFEMAP ─── */
+.lm-container{max-width:720px;margin:0 auto;}
+.lm-setup{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;}
+.lm-setup-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:16px;}
+.lm-field{margin-bottom:14px;}
+.lm-field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:7px;font-weight:500;}
+.lm-select,.lm-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+.lm-select:focus,.lm-input:focus{border-color:var(--accent);}
+.lm-select option{background:var(--surface2);}
+.lm-plan{display:none;}
+.lm-plan.visible{display:block;animation:fadeIn .5s ease;}
+.plan-day{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;}
+.plan-day-header{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:14px;color:var(--accent);}
+.plan-blocks{display:flex;flex-direction:column;gap:8px;}
+.plan-block{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:var(--surface2);}
+.plan-block-time{font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;color:var(--muted);min-width:54px;}
+.plan-block-icon{font-size:1.1rem;}
+.plan-block-text{font-size:.85rem;flex:1;}
+.plan-block-cat{font-size:.7rem;padding:2px 8px;border-radius:50px;font-weight:600;}
+.cat-study{background:rgba(99,179,237,.12);color:var(--accent);}
+.cat-break{background:rgba(104,211,145,.12);color:var(--accent3);}
+.cat-mental{background:rgba(159,122,234,.12);color:var(--accent2);}
+.cat-physical{background:rgba(246,173,85,.12);color:var(--warning);}
+.cat-sleep{background:rgba(118,228,247,.12);color:var(--cyan);}
+.notif-preview{background:var(--surface2);border:1px solid rgba(159,122,234,.2);border-radius:12px;padding:14px 18px;margin-top:16px;display:flex;align-items:center;gap:12px;}
+.notif-icon{font-size:1.4rem;}
+.notif-text{font-size:.85rem;line-height:1.5;}
+.notif-text strong{color:var(--accent2);}
+
+/* ─── OPPORTUNITY HUB ─── */
+.oh-container{max-width:900px;margin:0 auto;}
+.oh-course-banner{background:linear-gradient(135deg,rgba(99,179,237,.1),rgba(159,122,234,.1));border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:.85rem;}
+.oh-filter-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.oh-filter{padding:7px 14px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.78rem;cursor:pointer;transition:all .2s;}
+.oh-filter.active{border-color:var(--accent3);color:var(--accent3);background:rgba(104,211,145,.08);}
+.opp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;}
+.opp-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all .2s;animation:popIn .4s ease both;}
+.opp-card:hover{border-color:var(--accent3);transform:translateY(-2px);}
+.opp-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.opp-logo{width:40px;height:40px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+.opp-type{font-size:.7rem;padding:3px 8px;border-radius:50px;font-weight:600;}
+.opp-type.internship{background:rgba(99,179,237,.12);color:var(--accent);}
+.opp-type.hackathon{background:rgba(159,122,234,.12);color:var(--accent2);}
+.opp-type.scholarship{background:rgba(104,211,145,.12);color:var(--accent3);}
+.opp-type.program{background:rgba(246,173,85,.12);color:var(--warning);}
+.opp-type.job{background:rgba(118,228,247,.12);color:var(--cyan);}
+.opp-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:4px;}
+.opp-company{font-size:.8rem;color:var(--muted);margin-bottom:10px;}
+.opp-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.opp-tag{font-size:.7rem;padding:2px 7px;border-radius:50px;background:var(--surface2);color:var(--muted);}
+.opp-footer{display:flex;align-items:center;justify-content:space-between;}
+.opp-deadline{font-size:.74rem;color:var(--warning);}
+.opp-stipend{font-family:'Syne',sans-serif;font-weight:700;color:var(--accent3);font-size:.88rem;}
+.apply-btn{padding:7px 14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:.75rem;cursor:pointer;}
+
+/* ─── NOTIFICATION TOAST ─── */
+#notif-toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+.toast-item{background:var(--surface);border:1px solid rgba(159,122,234,.3);border-radius:14px;padding:14px 18px;max-width:300px;display:flex;align-items:center;gap:12px;animation:notifSlide .4s ease forwards;box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.toast-item.removing{animation:notifOut .4s ease forwards;}
+.toast-emoji{font-size:1.3rem;}
+.toast-text{font-size:.82rem;line-height:1.5;color:var(--text);}
+.toast-app{font-size:.7rem;color:var(--muted);margin-top:2px;}
+
+/* ─── PREMIUM MODAL ─── */
+#premium-modal{position:fixed;inset:0;background:rgba(7,11,20,.85);backdrop-filter:blur(8px);z-index:3000;display:none;align-items:center;justify-content:center;padding:24px;}
+#premium-modal.visible{display:flex;}
+.premium-card{background:var(--surface);border:1px solid rgba(246,173,85,.2);border-radius:24px;padding:40px;max-width:440px;width:100%;animation:popIn .4s ease;text-align:center;}
+.premium-crown{font-size:3rem;margin-bottom:16px;}
+.premium-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--warning),var(--danger));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.premium-price{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--warning);margin:16px 0 4px;}
+.premium-price-note{font-size:.82rem;color:var(--muted);margin-bottom:24px;}
+.premium-perks{text-align:left;margin-bottom:24px;}
+.premium-perk{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:.88rem;border-bottom:1px solid var(--border);}
+.premium-perk:last-child{border:none;}
+.btn-premium{width:100%;padding:14px;background:linear-gradient(135deg,var(--warning),var(--danger));color:#070b14;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;margin-bottom:10px;}
+.btn-cancel{background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;}
+
+/* ─── BOOK MODAL ─── */
+#book-modal{position:fixed;inset:0;background:rgba(7,11,20,.85);backdrop-filter:blur(8px);z-index:3000;display:none;align-items:center;justify-content:center;padding:24px;}
+#book-modal.visible{display:flex;}
+.book-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:420px;width:100%;animation:popIn .4s ease;}
+.book-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:20px;}
+.time-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0;}
+.time-slot{padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.78rem;cursor:pointer;transition:all .2s;text-align:center;}
+.time-slot.active{border-color:var(--accent);color:var(--accent);background:rgba(99,179,237,.08);}
+.book-confirm-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;margin-top:12px;}
+.book-close-btn{width:100%;padding:10px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:8px;}
+
+/* ─── MOOD TRACKER ─── */
+.mood-container{max-width:700px;margin:0 auto;}
+.mood-log-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;animation:fadeUp .5s ease;}
+.mood-log-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:18px;}
+.mood-emoji-row{display:flex;justify-content:space-around;margin-bottom:18px;}
+.mood-emoji-btn{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface2);border:2px solid transparent;border-radius:14px;padding:12px 16px;cursor:pointer;transition:all .2s;font-size:1.8rem;color:var(--muted);}
+.mood-emoji-btn span{font-size:.7rem;font-family:'DM Sans',sans-serif;font-weight:500;}
+.mood-emoji-btn:hover{border-color:var(--accent);transform:translateY(-3px);}
+.mood-emoji-btn.selected{border-color:var(--accent2);background:rgba(159,122,234,.12);transform:translateY(-3px);}
+.mood-note-row{display:flex;gap:10px;}
+.mood-note-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;}
+.mood-note-input:focus{border-color:var(--accent);}
+.mood-note-input::placeholder{color:var(--muted);}
+.mood-log-btn{padding:10px 20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#070b14;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.mood-log-btn:disabled{opacity:.4;cursor:not-allowed;}
+.mood-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+.mood-chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.mood-chart-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;}
+.mood-streak{font-size:.82rem;color:var(--warning);font-weight:600;}
+.mood-chart-wrap{height:120px;display:flex;align-items:flex-end;gap:8px;padding-bottom:4px;}
+.mood-chart{display:flex;align-items:flex-end;gap:8px;width:100%;height:100%;}
+.mood-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;}
+.mood-bar{width:100%;border-radius:6px 6px 2px 2px;transition:height .6s cubic-bezier(.34,1.56,.64,1);min-height:4px;position:relative;cursor:pointer;}
+.mood-bar:hover::after{content:attr(data-tip);position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);padding:4px 8px;border-radius:6px;font-size:.72rem;white-space:nowrap;color:var(--text);z-index:10;}
+.mood-bar-emoji{font-size:.9rem;}
+.mood-chart-labels{display:flex;gap:8px;margin-top:6px;}
+.mood-day-label{flex:1;text-align:center;font-size:.68rem;color:var(--muted);}
+.mood-insight-card{background:linear-gradient(135deg,rgba(99,179,237,.06),rgba(159,122,234,.06));border:1px solid rgba(99,179,237,.2);border-radius:16px;padding:22px;margin-bottom:20px;animation:popIn .4s ease;}
+.mood-insight-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:10px;color:var(--accent);}
+.mood-insight-text{font-size:.88rem;line-height:1.7;color:var(--text);}
+.mood-insight-refresh{margin-top:12px;background:none;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:8px;font-size:.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.mood-insight-refresh:hover{color:var(--accent);border-color:var(--accent);}
+.mood-history-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:12px;}
+.mood-history-list{display:flex;flex-direction:column;gap:10px;}
+.mood-history-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;animation:slideIn .3s ease;}
+.mood-history-emoji{font-size:1.6rem;}
+.mood-history-info{flex:1;}
+.mood-history-label{font-weight:600;font-size:.88rem;}
+.mood-history-date{font-size:.74rem;color:var(--muted);margin-top:2px;}
+.mood-history-note{font-size:.82rem;color:var(--muted);font-style:italic;margin-top:3px;}
+
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">MINDRIFT</div>
+  <div class="splash-tagline">When your mind drifts — we bring you back</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">MINDRIFT</div>
+    <div class="auth-sub">Your mental wellness companion for student life</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('signin')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- SIGN IN -->
+    <div id="signin-form">
+      <div class="auth-field">
+        <label>Email or Phone</label>
+        <input class="auth-input" type="text" id="si-email" placeholder="your@email.com" />
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input class="auth-input" type="password" id="si-pass" placeholder="••••••••" />
+      </div>
+      <button class="btn-auth" onclick="doSignIn()">Sign In →</button>
+      <div class="auth-divider">or continue as</div>
+      <button class="btn-auth" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="doGuest()">👤 Guest (Limited Access)</button>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="signup-form" style="display:none;">
+      <div class="auth-field">
+        <label>Full Name</label>
+        <input class="auth-input" type="text" id="su-name" placeholder="Your name" />
+      </div>
+      <div class="auth-field">
+        <label>Email</label>
+        <input class="auth-input" type="email" id="su-email" placeholder="your@email.com" />
+      </div>
+      <div class="auth-field">
+        <label>Your Course</label>
+        <select class="auth-select" id="su-course">
+          <option value="">Select your course...</option>
+          <option value="btech">B.Tech / B.E.</option>
+          <option value="bca">BCA / MCA</option>
+          <option value="mba">MBA / PGDM</option>
+          <option value="neet">NEET Aspirant (Medical)</option>
+          <option value="law">Law (LLB / BA LLB)</option>
+          <option value="bsc">B.Sc / M.Sc</option>
+          <option value="bcom">B.Com / M.Com</option>
+          <option value="arts">BA / MA (Arts)</option>
+          <option value="ca">CA / CS / CMA</option>
+          <option value="jee">JEE Aspirant</option>
+          <option value="other">Other</option>
+        </select>
+        <div class="auth-course-note">We personalise everything based on your course 🎯</div>
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input class="auth-input" type="password" id="su-pass" placeholder="Create password" />
+      </div>
+      <button class="btn-auth" onclick="doSignUp()">Create Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="onboarding-screen">
+  <div class="ob-wrap">
+    <div class="ob-progress-bar"><div class="ob-progress-fill" id="ob-progress" style="width:14%"></div></div>
+
+    <!-- STEP 1: Identity -->
+    <div class="ob-step active" id="ob-step-1">
+      <div class="ob-step-counter" id="ob-counter-1">Step 1 of 7</div>
+      <div class="ob-step-label">Who are you?</div>
+      <div class="ob-question">Let's make this yours 👋</div>
+      <div class="ob-sub">What should we call you? We'll use this to personalise everything.</div>
+      <input class="ob-input" id="ob-nickname" placeholder="Your name or nickname (e.g. Aryan, Priya, Dev...)" />
+      <div class="ob-sub" style="margin-top:-8px;margin-bottom:16px;">Age group</div>
+      <div class="ob-options" id="ob-age">
+        <button class="ob-opt" onclick="obSelect('ob-age',this)">Under 16</button>
+        <button class="ob-opt" onclick="obSelect('ob-age',this)">16–18</button>
+        <button class="ob-opt" onclick="obSelect('ob-age',this)">18–21</button>
+        <button class="ob-opt" onclick="obSelect('ob-age',this)">21–25</button>
+        <button class="ob-opt" onclick="obSelect('ob-age',this)">25+</button>
+      </div>
+      <div class="ob-sub" style="margin-bottom:16px;">What are you currently?</div>
+      <div class="ob-options" id="ob-role">
+        <button class="ob-opt" onclick="obSelect('ob-role',this)">🎓 School Student</button>
+        <button class="ob-opt" onclick="obSelect('ob-role',this)">📚 College Student</button>
+        <button class="ob-opt" onclick="obSelect('ob-role',this)">📝 Preparing for Exams</button>
+        <button class="ob-opt" onclick="obSelect('ob-role',this)">💼 Working Professional</button>
+      </div>
+      <div class="ob-sub" style="margin-bottom:16px;">Field / Course <span style="color:var(--muted);font-size:.75rem;">(optional)</span></div>
+      <div class="ob-options" id="ob-field">
+        <button class="ob-opt" onclick="obSelect('ob-field',this)">⚙️ Engineering</button>
+        <button class="ob-opt" onclick="obSelect('ob-field',this)">🏥 Medical</button>
+        <button class="ob-opt" onclick="obSelect('ob-field',this)">📊 Commerce</button>
+        <button class="ob-opt" onclick="obSelect('ob-field',this)">🎨 Arts</button>
+        <button class="ob-opt" onclick="obSelect('ob-field',this)">🔬 Science</button>
+        <button class="ob-opt" onclick="obSelect('ob-field',this)">⚖️ Law</button>
+        <button class="ob-opt" onclick="obSelect('ob-field',this)">💡 Other</button>
+      </div>
+      <div class="ob-privacy"><span class="ob-privacy-icon">🔒</span>We only collect minimal identity data to personalise recommendations — not to track users.</div>
+      <div class="ob-nav">
+        <button class="ob-btn-next" onclick="obNext(1)">Continue →</button>
+      </div>
+      <div class="ob-skip" onclick="obSkipAll()">Skip setup · <a>Go straight to app</a></div>
+    </div>
+
+    <!-- STEP 2: Life Context -->
+    <div class="ob-step" id="ob-step-2">
+      <div class="ob-step-counter">Step 2 of 7</div>
+      <div class="ob-step-label">Your life right now</div>
+      <div class="ob-question">What's taking up most of your mental space?</div>
+      <div class="ob-sub">This shapes your LifeMap and SoulSync focus.</div>
+      <div class="ob-options" id="ob-focus">
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-focus',this)">📚 Studies — grades, exams, assignments</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-focus',this)">💼 Career — jobs, internships, future</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-focus',this)">⚡ Both — juggling everything at once</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-focus',this)">🌀 Figuring things out — not sure yet</button>
+      </div>
+      <div class="ob-sub" style="margin-top:8px;">Biggest current stress?</div>
+      <div class="ob-options" id="ob-stress">
+        <button class="ob-opt" onclick="obSelect('ob-stress',this)">📝 Exams</button>
+        <button class="ob-opt" onclick="obSelect('ob-stress',this)">🔮 Career uncertainty</button>
+        <button class="ob-opt" onclick="obSelect('ob-stress',this)">💔 Relationships</button>
+        <button class="ob-opt" onclick="obSelect('ob-stress',this)">🪞 Self-doubt</button>
+        <button class="ob-opt" onclick="obSelect('ob-stress',this)">🏠 Family pressure</button>
+      </div>
+      <div class="ob-nav">
+        <button class="ob-btn-back" onclick="obBack(2)">← Back</button>
+        <button class="ob-btn-next" onclick="obNext(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Emotional Patterns -->
+    <div class="ob-step" id="ob-step-3">
+      <div class="ob-step-counter">Step 3 of 7</div>
+      <div class="ob-step-label">Emotional patterns</div>
+      <div class="ob-question">How do you handle tough moments?</div>
+      <div class="ob-sub">Helps SoulSync and CalmCore respond the right way for you.</div>
+      <div class="ob-sub" style="margin-bottom:14px;">When you feel low, you usually:</div>
+      <div class="ob-options" id="ob-cope">
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-cope',this)">🤐 Stay silent — I process alone</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-cope',this)">🗣️ Talk to someone — I need to vent</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-cope',this)">🎮 Distract myself — keep busy</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-cope',this)">🌀 Overthink — my mind won't stop</button>
+      </div>
+      <div class="ob-sub" style="margin-top:8px;">How often do you feel stressed?</div>
+      <div class="ob-options" id="ob-stressfreq">
+        <button class="ob-opt" onclick="obSelect('ob-stressfreq',this)">😌 Rarely</button>
+        <button class="ob-opt" onclick="obSelect('ob-stressfreq',this)">😐 Sometimes</button>
+        <button class="ob-opt" onclick="obSelect('ob-stressfreq',this)">😰 Often</button>
+        <button class="ob-opt" onclick="obSelect('ob-stressfreq',this)">😵 Almost daily</button>
+      </div>
+      <div class="ob-nav">
+        <button class="ob-btn-back" onclick="obBack(3)">← Back</button>
+        <button class="ob-btn-next" onclick="obNext(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Communication Style -->
+    <div class="ob-step" id="ob-step-4">
+      <div class="ob-step-counter">Step 4 of 7</div>
+      <div class="ob-step-label">Communication style</div>
+      <div class="ob-question">How do you want support?</div>
+      <div class="ob-sub">This directly shapes how SoulSync talks to you — tone, approach, everything.</div>
+      <div class="ob-options" id="ob-support">
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-support',this)">👂 Just listen — I need to be heard</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-support',this)">💡 Give advice — tell me what to do</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-support',this)">🚀 Motivate me — hype me up</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-support',this)">🎯 Be direct — no sugarcoating</button>
+      </div>
+      <div class="ob-sub" style="margin-top:8px;">Biggest communication challenge?</div>
+      <div class="ob-options" id="ob-commchallenge">
+        <button class="ob-opt" onclick="obSelect('ob-commchallenge',this)">😶 Confidence</button>
+        <button class="ob-opt" onclick="obSelect('ob-commchallenge',this)">🔤 English fluency</button>
+        <button class="ob-opt" onclick="obSelect('ob-commchallenge',this)">🌀 Overthinking</button>
+        <button class="ob-opt" onclick="obSelect('ob-commchallenge',this)">😟 Fear of judgment</button>
+      </div>
+      <div class="ob-nav">
+        <button class="ob-btn-back" onclick="obBack(4)">← Back</button>
+        <button class="ob-btn-next" onclick="obNext(4)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: Personality -->
+    <div class="ob-step" id="ob-step-5">
+      <div class="ob-step-counter">Step 5 of 7</div>
+      <div class="ob-step-label">Your vibe</div>
+      <div class="ob-question">What's your personality mode?</div>
+      <div class="ob-sub">Sets the default tone across SoulSync, LifeMap, and notifications.</div>
+      <div class="ob-options" id="ob-vibe">
+        <button class="ob-opt" onclick="obSelect('ob-vibe',this)">😎 Chill & friendly</button>
+        <button class="ob-opt" onclick="obSelect('ob-vibe',this)">🤗 Supportive & caring</button>
+        <button class="ob-opt" onclick="obSelect('ob-vibe',this)">⚡ Direct & practical</button>
+        <button class="ob-opt" onclick="obSelect('ob-vibe',this)">🔥 Motivational</button>
+      </div>
+      <div class="ob-sub" style="margin-top:8px;">What helps you calm down?</div>
+      <div class="ob-options" id="ob-calm">
+        <button class="ob-opt" onclick="obSelect('ob-calm',this)">🎵 Music</button>
+        <button class="ob-opt" onclick="obSelect('ob-calm',this)">💬 Talking</button>
+        <button class="ob-opt" onclick="obSelect('ob-calm',this)">🌙 Being alone</button>
+        <button class="ob-opt" onclick="obSelect('ob-calm',this)">🏃 Physical activity</button>
+      </div>
+      <div class="ob-nav">
+        <button class="ob-btn-back" onclick="obBack(5)">← Back</button>
+        <button class="ob-btn-next" onclick="obNext(5)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 6: Goals -->
+    <div class="ob-step" id="ob-step-6">
+      <div class="ob-step-counter">Step 6 of 7</div>
+      <div class="ob-step-label">Your goals</div>
+      <div class="ob-question">What do you want to improve most?</div>
+      <div class="ob-sub">Connects to OpportunityHub filters and your LifeMap priorities.</div>
+      <div class="ob-options" id="ob-improve">
+        <button class="ob-opt" onclick="obSelect('ob-improve',this)">💪 Confidence</button>
+        <button class="ob-opt" onclick="obSelect('ob-improve',this)">🗣️ Communication</button>
+        <button class="ob-opt" onclick="obSelect('ob-improve',this)">🧘 Mental calm</button>
+        <button class="ob-opt" onclick="obSelect('ob-improve',this)">📐 Discipline</button>
+        <button class="ob-opt" onclick="obSelect('ob-improve',this)">🎯 Focus</button>
+      </div>
+      <div class="ob-sub" style="margin-top:8px;">Short-term goal <span style="font-size:.75rem;color:var(--muted);">(optional)</span></div>
+      <input class="ob-input" id="ob-goal-text" placeholder="e.g. Clear my finals, get an internship, feel less anxious..." />
+      <div class="ob-nav">
+        <button class="ob-btn-back" onclick="obBack(6)">← Back</button>
+        <button class="ob-btn-next" onclick="obNext(6)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 7: Usage Preferences -->
+    <div class="ob-step" id="ob-step-7">
+      <div class="ob-step-counter">Step 7 of 7</div>
+      <div class="ob-step-label">Usage preferences</div>
+      <div class="ob-question">When will you use MindDrift?</div>
+      <div class="ob-sub">Helps us time your LifeMap reminders and notifications right.</div>
+      <div class="ob-options" id="ob-usage">
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-usage',this)">🌙 Late night — when it all hits at once</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-usage',this)">📚 During study breaks — reset between sessions</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-usage',this)">😰 When stressed — emergency use</button>
+        <button class="ob-opt ob-opt-wide" onclick="obSelect('ob-usage',this)">🔀 Randomly — whenever I feel like it</button>
+      </div>
+      <div class="ob-privacy" style="margin-top:16px;"><span class="ob-privacy-icon">🔒</span>All questions are optional. Data is stored locally on your device only — never tracked or shared with anyone.</div>
+      <div class="ob-nav">
+        <button class="ob-btn-back" onclick="obBack(7)">← Back</button>
+        <button class="ob-btn-next" onclick="obFinish()">✨ Build My Profile →</button>
+      </div>
+    </div>
+
+    <!-- STEP 8: Finish -->
+    <div class="ob-step" id="ob-step-finish">
+      <div class="ob-finish-card">
+        <div class="ob-finish-icon">🎉</div>
+        <div class="ob-finish-title">You're all set, <span id="ob-finish-name" style="background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">friend</span>!</div>
+        <div class="ob-finish-sub">MindDrift has been personalised for you. Here's your profile summary:</div>
+        <div class="ob-profile-preview" id="ob-profile-preview"></div>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:20px;line-height:1.5;">
+          <strong style="color:var(--accent);">This ensures your experience is not generic — it evolves around you.</strong><br>
+          SoulSync adapts its tone · CalmCore suggests relevant exercises · LifeMap builds your routine · OpportunityHub filters for your goals.
+        </div>
+        <button class="ob-btn-next" onclick="obEnterApp()" style="width:100%;">Enter MindDrift 🚀</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="app">
+  <header>
+    <div class="logo">MINDRIFT</div>
+    <div class="header-right">
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
+      <div class="user-chip"><div class="user-dot"></div><span id="header-name">Loading...</span></div>
+      <div class="premium-badge" id="premium-badge" onclick="showPremium()" style="cursor:pointer;">⭐ Free · 5 chats left</div>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </header>
+
+  <nav>
+    <button class="nav-btn active" onclick="showScreen('home',this)"><span class="nav-icon">🏠</span> Home</button>
+    <button class="nav-btn" onclick="showScreen('soulsync',this)"><span class="nav-icon">🧠</span> SoulSync</button>
+    <button class="nav-btn" onclick="showScreen('echospace',this)"><span class="nav-icon">👥</span> EchoSpace</button>
+    <button class="nav-btn" onclick="showScreen('calmcore',this)"><span class="nav-icon">🧘</span> CalmCore</button>
+    <button class="nav-btn" onclick="showScreen('therapybridge',this)"><span class="nav-icon">🌍</span> TherapyBridge</button>
+    <button class="nav-btn" onclick="showScreen('lifemap',this)"><span class="nav-icon">📅</span> LifeMap</button>
+    <button class="nav-btn" onclick="showScreen('opphub',this)"><span class="nav-icon">💼</span> OpportunityHub</button>
+    <button class="nav-btn" onclick="showScreen('moodtracker',this)"><span class="nav-icon">📊</span> Mood Tracker</button>
+  </nav>
+
+  <!-- HOME -->
+  <div id="screen-home" class="screen active">
+    <div class="home-hero">
+      <h1>Welcome back, <span class="greeting-name" id="greeting-name">friend</span> 👋</h1>
+      <p>Your all-in-one companion for mental wellness, academic balance, and student life. We've got you.</p>
+    </div>
+    <div class="modules-grid">
+      <div class="module-card" style="--card-accent:#9f7aea;--card-glow:radial-gradient(circle at 0% 0%,rgba(159,122,234,.06),transparent 70%);" onclick="showScreen('soulsync');setActiveNav(1)">
+        <span class="module-icon">🧠</span>
+        <div class="module-name">SoulSync</div>
+        <div class="module-desc">AI big bro/sis who actually gets you. Sentiment analysis + real talk, not clinical advice.</div>
+        <span class="module-tag" style="background:rgba(159,122,234,.1);color:#9f7aea;">AI Chat</span>
+        <span class="free-tag">✨ 5 free chats/day · Upgrade for unlimited</span>
+      </div>
+      <div class="module-card" style="--card-accent:#63b3ed;--card-glow:radial-gradient(circle at 0% 0%,rgba(99,179,237,.06),transparent 70%);" onclick="showScreen('echospace');setActiveNav(2)">
+        <span class="module-icon">👥</span>
+        <div class="module-name">EchoSpace</div>
+        <div class="module-desc">Anonymous space to share. No names, no judgment — just people who get it.</div>
+        <span class="module-tag" style="background:rgba(99,179,237,.1);color:#63b3ed;">Community</span>
+      </div>
+      <div class="module-card" style="--card-accent:#68d391;--card-glow:radial-gradient(circle at 0% 0%,rgba(104,211,145,.06),transparent 70%);" onclick="showScreen('calmcore');setActiveNav(3)">
+        <span class="module-icon">🧘</span>
+        <div class="module-name">CalmCore</div>
+        <div class="module-desc">Breathing, meditation, physical grounding — full toolkit for panic, anxiety, and stress.</div>
+        <span class="module-tag" style="background:rgba(104,211,145,.1);color:#68d391;">Wellness</span>
+      </div>
+      <div class="module-card" style="--card-accent:#76e4f7;--card-glow:radial-gradient(circle at 0% 0%,rgba(118,228,247,.06),transparent 70%);" onclick="showScreen('therapybridge');setActiveNav(4)">
+        <span class="module-icon">🌍</span>
+        <div class="module-name">TherapyBridge</div>
+        <div class="module-desc">Verified therapists, psychiatrists & counselors at student-friendly rates. Book in minutes.</div>
+        <span class="module-tag" style="background:rgba(118,228,247,.1);color:#76e4f7;">Professional Help</span>
+      </div>
+      <div class="module-card" style="--card-accent:#f6ad55;--card-glow:radial-gradient(circle at 0% 0%,rgba(246,173,85,.06),transparent 70%);" onclick="showScreen('lifemap');setActiveNav(5)">
+        <span class="module-icon">📅</span>
+        <div class="module-name">LifeMap</div>
+        <div class="module-desc">Your AI-generated daily plan — study, mental health, sleep, gym. With Gen Z reminders that hit different.</div>
+        <span class="module-tag" style="background:rgba(246,173,85,.1);color:#f6ad55;">Daily Planner</span>
+      </div>
+      <div class="module-card" style="--card-accent:#68d391;--card-glow:radial-gradient(circle at 0% 0%,rgba(104,211,145,.06),transparent 70%);" onclick="showScreen('opphub');setActiveNav(6)">
+        <span class="module-icon">💼</span>
+        <div class="module-name">OpportunityHub</div>
+        <div class="module-desc">Internships, hackathons, scholarships & jobs — filtered for YOUR exact course. Like LinkedIn, but calmer.</div>
+        <span class="module-tag" style="background:rgba(104,211,145,.1);color:#68d391;">Career & Finance</span>
+      </div>
+      <div class="module-card" style="--card-accent:#76e4f7;--card-glow:radial-gradient(circle at 0% 0%,rgba(118,228,247,.06),transparent 70%);" onclick="showScreen('moodtracker');setActiveNav(7)">
+        <span class="module-icon">📊</span>
+        <div class="module-name">Mood Tracker</div>
+        <div class="module-desc">Log your mood daily. Visual 7-day chart + AI insights to understand your emotional patterns.</div>
+        <span class="module-tag" style="background:rgba(118,228,247,.1);color:#76e4f7;">Self-Awareness</span>
+        <span class="free-tag">✨ Free · Local & Private</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOULSYNC -->
+  <div id="screen-soulsync" class="screen">
+    <div class="ss-container">
+      <div class="section-header">
+        <h2>🧠 SoulSync</h2>
+        <p>Your AI big bro/sis. Tell them anything — they understand how you actually feel, not just what you say.</p>
+      </div>
+      <div class="ss-limit-bar">
+        <div>
+          <div class="ss-limit-count" id="chat-count-display">5 chats remaining today</div>
+          <div class="ss-limit-info">Free tier · Resets every midnight</div>
+        </div>
+        <button class="ss-upgrade-btn" onclick="showPremium()">⭐ Go Unlimited</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:8px;">Choose your vibe 👇</div>
+        <div class="persona-row">
+          <button class="persona-btn active" onclick="setPersona(this,'bro')">🤜 Big Bro</button>
+          <button class="persona-btn" onclick="setPersona(this,'sis')">🤗 Big Sis</button>
+          <button class="persona-btn" onclick="setPersona(this,'friend')">👯 Best Friend</button>
+          <button class="persona-btn" onclick="setPersona(this,'mentor')">🎓 Wise Mentor</button>
+          <button class="persona-btn" onclick="setPersona(this,'calm')">🌿 Calm Guide</button>
+        </div>
+      </div>
+      <div class="ss-chat-window" id="ss-chat-window">
+        <div class="chat-msg bot">
+          <div class="chat-bot-label">SoulSync AI · Big Bro mode</div>
+          <div class="chat-bubble bot">Aye bhai, what's going on? This is your safe space — no judgment, no lectures. Just real talk. Tell me what's on your mind 💙</div>
+        </div>
+      </div>
+      <div class="ss-input-row">
+        <input class="ss-input" id="ss-input" placeholder="Type how you're feeling..." onkeypress="if(event.key==='Enter')sendSoulSync()" />
+        <button class="ss-send-btn" onclick="sendSoulSync()">Send →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ECHOSPACE -->
+  <div id="screen-echospace" class="screen">
+    <div class="echo-container">
+      <div class="section-header">
+        <h2>👥 EchoSpace</h2>
+        <p>Anonymous community. Share what you can't say anywhere else. Others reply, support, and relate.</p>
+      </div>
+      <div class="new-post-area">
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:8px;">Tag your post:</div>
+        <div class="post-tag-row">
+          <button class="post-tag-btn active" onclick="toggleTag(this,'#ExamStress')">📚 Exam Stress</button>
+          <button class="post-tag-btn" onclick="toggleTag(this,'#Anxiety')">😰 Anxiety</button>
+          <button class="post-tag-btn" onclick="toggleTag(this,'#Lonely')">🌙 Lonely</button>
+          <button class="post-tag-btn" onclick="toggleTag(this,'#Confused')">🌀 Confused</button>
+          <button class="post-tag-btn" onclick="toggleTag(this,'#WinToday')">✨ Win Today</button>
+        </div>
+        <textarea id="echo-input" placeholder="What's on your mind? Share anonymously — this is a safe space. 💙"></textarea>
+        <div class="new-post-footer">
+          <div class="anon-badge">🔒 100% Anonymous · No names, no trace</div>
+          <button class="btn-post" onclick="postEcho()">Share →</button>
+        </div>
+      </div>
+      <div class="echo-filter-row">
+        <button class="echo-filter active" onclick="filterEcho(this,'all')">All</button>
+        <button class="echo-filter" onclick="filterEcho(this,'ExamStress')">📚 Exam Stress</button>
+        <button class="echo-filter" onclick="filterEcho(this,'Anxiety')">😰 Anxiety</button>
+        <button class="echo-filter" onclick="filterEcho(this,'Lonely')">🌙 Lonely</button>
+        <button class="echo-filter" onclick="filterEcho(this,'WinToday')">✨ Wins</button>
+      </div>
+      <div class="posts-list" id="echo-posts">
+        <div class="post-card" data-tag="ExamStress">
+          <div class="post-header">
+            <div class="post-header-left">
+              <div class="anon-avatar" style="background:rgba(99,179,237,.15);color:#63b3ed;">S</div>
+              <div><div class="post-user">Shadow_221</div><div class="post-time">2 hours ago</div></div>
+            </div>
+            <span class="post-topic" style="background:rgba(99,179,237,.1);color:#63b3ed;">#ExamStress</span>
+          </div>
+          <div class="post-text">Failed my mid sem. Parents don't know yet. Feeling like I've let everyone down. Is it just me or does anyone else feel like they're not made for this?</div>
+          <div class="post-actions">
+            <button class="post-action-btn" onclick="relatePost(this)">❤️ <span>24</span> relate</button>
+            <button class="post-action-btn" onclick="toggleReplies(this)">💬 3 replies</button>
+          </div>
+          <div class="replies-section">
+            <div class="reply-card"><strong style="color:var(--accent2)">Nova_412:</strong> Bhai same happened to me in 2nd year. You're not alone. It gets better fr.</div>
+            <div class="reply-card"><strong style="color:var(--accent3)">Echo_778:</strong> Tell your parents — it's better than they finding out later. They'll understand more than you think 💙</div>
+            <div class="reply-input-row">
+              <input class="reply-input" placeholder="Reply anonymously..." />
+              <button class="reply-submit" onclick="submitReply(this)">→</button>
+            </div>
+          </div>
+        </div>
+        <div class="post-card" data-tag="Anxiety">
+          <div class="post-header">
+            <div class="post-header-left">
+              <div class="anon-avatar" style="background:rgba(159,122,234,.15);color:#9f7aea;">M</div>
+              <div><div class="post-user">Moon_457</div><div class="post-time">5 hours ago</div></div>
+            </div>
+            <span class="post-topic" style="background:rgba(159,122,234,.1);color:#9f7aea;">#Anxiety</span>
+          </div>
+          <div class="post-text">3 AM and mind won't stop. Anxiety hits hardest at night. Don't want to disturb my roommate. Does anyone else fight this?</div>
+          <div class="post-actions">
+            <button class="post-action-btn" onclick="relatePost(this)">❤️ <span>41</span> relate</button>
+            <button class="post-action-btn" onclick="toggleReplies(this)">💬 5 replies</button>
+          </div>
+          <div class="replies-section">
+            <div class="reply-card"><strong style="color:var(--accent)">Drift_099:</strong> Try CalmCore on this app — the 4-7-8 breathing literally saved me at 2 AM fr</div>
+            <div class="reply-input-row">
+              <input class="reply-input" placeholder="Reply anonymously..." />
+              <button class="reply-submit" onclick="submitReply(this)">→</button>
+            </div>
+          </div>
+        </div>
+        <div class="post-card" data-tag="WinToday">
+          <div class="post-header">
+            <div class="post-header-left">
+              <div class="anon-avatar" style="background:rgba(104,211,145,.15);color:#68d391;">R</div>
+              <div><div class="post-user">Rain_093</div><div class="post-time">Yesterday</div></div>
+            </div>
+            <span class="post-topic" style="background:rgba(104,211,145,.1);color:#68d391;">#WinToday</span>
+          </div>
+          <div class="post-text">Whoever is reading this — you're not alone. EchoSpace helped me more than I expected. We're all fighting something. 💙</div>
+          <div class="post-actions">
+            <button class="post-action-btn" onclick="relatePost(this)">❤️ <span>89</span> relate</button>
+            <button class="post-action-btn" onclick="toggleReplies(this)">💬 12 replies</button>
+          </div>
+          <div class="replies-section">
+            <div class="reply-input-row">
+              <input class="reply-input" placeholder="Reply anonymously..." />
+              <button class="reply-submit" onclick="submitReply(this)">→</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALMCORE -->
+  <div id="screen-calmcore" class="screen">
+    <div class="calm-container">
+      <div class="section-header">
+        <h2>🧘 CalmCore</h2>
+        <p>Breathing exercises, physical grounding, and guided meditation — your full emergency calm toolkit.</p>
+      </div>
+      <div class="calm-tabs">
+        <button class="calm-tab active" onclick="switchCalmTab('breathe',this)">🌬️ Breathing</button>
+        <button class="calm-tab" onclick="switchCalmTab('physical',this)">🤸 Physical</button>
+        <button class="calm-tab" onclick="switchCalmTab('meditate',this)">🌿 Meditation</button>
+      </div>
+
+      <!-- BREATHE -->
+      <div class="calm-panel active" id="panel-breathe">
+        <div class="breathe-center">
+          <div class="breathe-mode-row">
+            <button class="breathe-mode-btn active" onclick="setBreatheMode(this,4,4,4,4,'Box Breathing')">📦 Box (4-4-4-4)</button>
+            <button class="breathe-mode-btn" onclick="setBreatheMode(this,4,7,8,0,'4-7-8 Method')">🌙 4-7-8</button>
+            <button class="breathe-mode-btn" onclick="setBreatheMode(this,5,0,7,0,'Deep Calm')">🌊 Deep Calm</button>
+          </div>
+          <div class="breathe-orb-wrap">
+            <div class="breathe-orb" id="breathe-orb"></div>
+            <div class="breathe-orb-ring"></div>
+            <div class="breathe-orb-ring2"></div>
+          </div>
+          <div class="breathe-label" id="breathe-label">Ready</div>
+          <div class="breathe-sublabel" id="breathe-sublabel">Choose a technique and press Start</div>
+          <button class="breathe-start-btn" id="breathe-start-btn" onclick="toggleBreathe()">▶ Start</button>
+          <div class="breathe-session-count" id="breathe-session-count" style="margin-top:16px;text-align:center;"></div>
+        </div>
+      </div>
+
+      <!-- PHYSICAL -->
+      <div class="calm-panel" id="panel-physical">
+        <div class="exercise-grid">
+          <div class="exercise-card" onclick="startExercise('Progressive Muscle Relaxation','Tense each muscle group for 5 seconds, then release. Start from toes → calves → thighs → stomach → shoulders → fists. Takes 5 minutes, removes physical tension completely.')">
+            <div class="exercise-icon">💪</div>
+            <div class="exercise-name">Progressive Muscle Relaxation</div>
+            <div class="exercise-desc">Tense and release each muscle group. Physically removes stress from your body.</div>
+            <span class="exercise-tag">5 min · For anxiety</span>
+          </div>
+          <div class="exercise-card" onclick="startExercise('5-4-3-2-1 Grounding','Look around and name: 5 things you can SEE → 4 things you can TOUCH → 3 things you can HEAR → 2 things you can SMELL → 1 thing you can TASTE. This pulls you out of panic mode instantly.')">
+            <div class="exercise-icon">👀</div>
+            <div class="exercise-name">5-4-3-2-1 Grounding</div>
+            <div class="exercise-desc">Use your 5 senses to pull yourself back from a panic spiral. Works instantly.</div>
+            <span class="exercise-tag">2 min · Panic attack</span>
+          </div>
+          <div class="exercise-card" onclick="startExercise('Cold Water Reset','Splash cold water on your face or hold ice for 30 seconds. This activates your dive reflex and slows your heart rate physically — no willpower needed.')">
+            <div class="exercise-icon">❄️</div>
+            <div class="exercise-name">Cold Water Reset</div>
+            <div class="exercise-desc">Cold water on face triggers the dive reflex — slows heart rate in seconds.</div>
+            <span class="exercise-tag">30 sec · Emergency</span>
+          </div>
+          <div class="exercise-card" onclick="startExercise('Neck & Shoulder Roll','Drop chin to chest → slowly roll right → back → left → repeat 5 times each direction. Stress lives in your neck and shoulders. This physically releases it in 3 minutes.')">
+            <div class="exercise-icon">🔄</div>
+            <div class="exercise-name">Neck & Shoulder Roll</div>
+            <div class="exercise-desc">Stress lives in your neck. This physical release works in 3 minutes flat.</div>
+            <span class="exercise-tag">3 min · Exam stress</span>
+          </div>
+          <div class="exercise-card" onclick="startExercise('Shake It Off','Stand up and literally shake your hands, arms, and whole body for 60 seconds. Animals do this after trauma to release stress hormones. Feels silly. Works perfectly.')">
+            <div class="exercise-icon">🕺</div>
+            <div class="exercise-name">Shake It Off</div>
+            <div class="exercise-desc">Literally shake your body for 60 seconds. Releases stress hormones physically.</div>
+            <span class="exercise-tag">1 min · Overwhelmed</span>
+          </div>
+          <div class="exercise-card" onclick="startExercise('Power Pose Reset','Stand tall, feet wide, hands on hips — like Wonder Woman or Superman. Hold for 2 minutes. Research shows this changes your cortisol and testosterone levels before high-pressure situations.')">
+            <div class="exercise-icon">🦸</div>
+            <div class="exercise-name">Power Pose Reset</div>
+            <div class="exercise-desc">Stand like a superhero for 2 min. Actually changes your stress hormones.</div>
+            <span class="exercise-tag">2 min · Before exams</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDITATE -->
+      <div class="calm-panel" id="panel-meditate">
+        <div class="meditation-list">
+          <div class="meditation-item" onclick="startMeditation('Body Scan Meditation','Close your eyes. Take a slow breath in. Now bring your attention to the top of your head. Notice any tension there — and breathe it out. Move down slowly to your forehead, then your eyes, jaw, neck, shoulders. At each area, breathe in calm, breathe out tension. Keep moving down — chest, stomach, hands. There is nothing you need to do right now. Nowhere to be. Just here, breathing. Continue slowly to your legs, feet. You are completely grounded. Present. Safe.',10)">
+            <div class="meditation-left">
+              <div class="meditation-icon">🧍</div>
+              <div>
+                <div class="meditation-name">Body Scan</div>
+                <div class="meditation-desc">Release tension from head to toe. Perfect for before sleep.</div>
+              </div>
+            </div>
+            <div class="meditation-duration">10 min</div>
+          </div>
+          <div class="meditation-item" onclick="startMeditation('Exam Anxiety Calm','You are sitting quietly. There is an exam ahead. Feel the nervousness in your chest. Don\'t push it away — breathe into it. That feeling means you care. And caring means you\'re capable. Every question you face — you have prepared. Even if you don\'t know every answer, you know more than you think. Breathe in confidence. Breathe out fear. You\'ve survived every hard day so far. This is just another one.',5)">
+            <div class="meditation-left">
+              <div class="meditation-icon">📝</div>
+              <div>
+                <div class="meditation-name">Exam Anxiety Calm</div>
+                <div class="meditation-desc">For the 30 minutes before a test. Converts nerves into readiness.</div>
+              </div>
+            </div>
+            <div class="meditation-duration">5 min</div>
+          </div>
+          <div class="meditation-item" onclick="startMeditation('3 AM Anxiety Relief','It\'s late. Your mind is busy. That\'s okay. You don\'t have to solve anything right now. The thoughts aren\'t commands — they\'re just clouds passing. Let them pass. Your body is tired. It deserves rest. Every worry you have will still be there tomorrow if you need it — but right now, your only job is to breathe. In. Out. The world is quiet. You are safe. Let go.',7)">
+            <div class="meditation-left">
+              <div class="meditation-icon">🌙</div>
+              <div>
+                <div class="meditation-name">3 AM Anxiety Relief</div>
+                <div class="meditation-desc">When your mind won't stop at night. Specially made for students.</div>
+              </div>
+            </div>
+            <div class="meditation-duration">7 min</div>
+          </div>
+          <div class="meditation-item" onclick="startMeditation('Financial Stress Release','Money stress is one of the heaviest things to carry as a student. Feel that weight for a moment. It\'s real, and it\'s valid. But you are not your financial situation. You are resourceful, you are learning, you are here. Today you don\'t have to solve everything. Just breathe. One breath. One day. That\'s enough for now.',5)">
+            <div class="meditation-left">
+              <div class="meditation-icon">💸</div>
+              <div>
+                <div class="meditation-name">Financial Stress Release</div>
+                <div class="meditation-desc">For when money pressure feels suffocating. You are not your situation.</div>
+              </div>
+            </div>
+            <div class="meditation-duration">5 min</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- THERAPYBRIDGE -->
+  <div id="screen-therapybridge" class="screen">
+    <div class="tb-container">
+      <div class="section-header">
+        <h2>🌍 TherapyBridge</h2>
+        <p>Verified mental health professionals at student-friendly rates. Book in minutes, connect instantly.</p>
+      </div>
+      <div class="tb-commission-note">
+        💡 <span>All sessions are verified & at discounted student rates. MINDRIFT earns a small platform fee — therapists get consistent clients, you get affordable care.</span>
+      </div>
+      <div class="tb-filter-row">
+        <button class="tb-filter active" onclick="filterTherapists(this,'all')">All</button>
+        <button class="tb-filter" onclick="filterTherapists(this,'anxiety')">😰 Anxiety</button>
+        <button class="tb-filter" onclick="filterTherapists(this,'academic')">📚 Academic</button>
+        <button class="tb-filter" onclick="filterTherapists(this,'depression')">💙 Depression</button>
+        <button class="tb-filter" onclick="filterTherapists(this,'psychiatrist')">🧬 Psychiatrist</button>
+      </div>
+      <div class="therapist-grid">
+        <div class="therapist-card" data-spec="anxiety academic">
+          <div class="therapist-header">
+            <div class="therapist-avatar" style="background:rgba(99,179,237,.15);color:#63b3ed;">DR</div>
+            <div>
+              <div class="therapist-name">Dr. Riya Sharma</div>
+              <div class="therapist-title">Clinical Psychologist · 8 yrs exp</div>
+              <div class="therapist-rating">★★★★★ 4.9 (127 reviews)</div>
+            </div>
+          </div>
+          <div class="therapist-tags">
+            <span class="therapist-tag">Anxiety</span>
+            <span class="therapist-tag">Academic Stress</span>
+            <span class="therapist-tag">CBT</span>
+          </div>
+          <div class="therapist-price">₹299 <span style="font-size:.75rem;font-weight:400;color:var(--muted);">/ session</span></div>
+          <div class="therapist-price-note">Market rate ₹800 · Student discount applied</div>
+          <div class="therapist-availability">🟢 Available today · Hindi & English</div>
+          <button class="book-btn" onclick="openBookModal('Dr. Riya Sharma')">📅 Book Session</button>
+        </div>
+        <div class="therapist-card" data-spec="depression anxiety">
+          <div class="therapist-header">
+            <div class="therapist-avatar" style="background:rgba(159,122,234,.15);color:#9f7aea;">AK</div>
+            <div>
+              <div class="therapist-name">Arjun Kapoor</div>
+              <div class="therapist-title">Counselling Psychologist · 5 yrs exp</div>
+              <div class="therapist-rating">★★★★★ 4.8 (89 reviews)</div>
+            </div>
+          </div>
+          <div class="therapist-tags">
+            <span class="therapist-tag">Depression</span>
+            <span class="therapist-tag">Self-esteem</span>
+            <span class="therapist-tag">Relationships</span>
+          </div>
+          <div class="therapist-price">₹199 <span style="font-size:.75rem;font-weight:400;color:var(--muted);">/ session</span></div>
+          <div class="therapist-price-note">Market rate ₹600 · Student discount applied</div>
+          <div class="therapist-availability">🟢 Available now · Hindi</div>
+          <button class="book-btn" onclick="openBookModal('Arjun Kapoor')">📅 Book Session</button>
+        </div>
+        <div class="therapist-card" data-spec="psychiatrist depression">
+          <div class="therapist-header">
+            <div class="therapist-avatar" style="background:rgba(104,211,145,.15);color:#68d391;">PM</div>
+            <div>
+              <div class="therapist-name">Dr. Priya Menon</div>
+              <div class="therapist-title">Psychiatrist (MBBS, MD) · 12 yrs</div>
+              <div class="therapist-rating">★★★★★ 4.9 (214 reviews)</div>
+            </div>
+          </div>
+          <div class="therapist-tags">
+            <span class="therapist-tag">Psychiatrist</span>
+            <span class="therapist-tag">Medication</span>
+            <span class="therapist-tag">Severe cases</span>
+          </div>
+          <div class="therapist-price">₹499 <span style="font-size:.75rem;font-weight:400;color:var(--muted);">/ session</span></div>
+          <div class="therapist-price-note">Market rate ₹2000 · MINDRIFT verified</div>
+          <div class="therapist-availability">🟡 Next slot tomorrow · English</div>
+          <button class="book-btn" onclick="openBookModal('Dr. Priya Menon')">📅 Book Session</button>
+        </div>
+        <div class="therapist-card" data-spec="academic anxiety">
+          <div class="therapist-header">
+            <div class="therapist-avatar" style="background:rgba(246,173,85,.15);color:#f6ad55;">SV</div>
+            <div>
+              <div class="therapist-name">Sneha Verma</div>
+              <div class="therapist-title">Student Counsellor · 4 yrs exp</div>
+              <div class="therapist-rating">★★★★☆ 4.7 (63 reviews)</div>
+            </div>
+          </div>
+          <div class="therapist-tags">
+            <span class="therapist-tag">Exam Stress</span>
+            <span class="therapist-tag">NEET/JEE</span>
+            <span class="therapist-tag">Career Confusion</span>
+          </div>
+          <div class="therapist-price">₹149 <span style="font-size:.75rem;font-weight:400;color:var(--muted);">/ session</span></div>
+          <div class="therapist-price-note">Specialist for NEET/JEE aspirants</div>
+          <div class="therapist-availability">🟢 Available today · Hindi & English</div>
+          <button class="book-btn" onclick="openBookModal('Sneha Verma')">📅 Book Session</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIFEMAP -->
+  <div id="screen-lifemap" class="screen">
+    <div class="lm-container">
+      <div class="section-header">
+        <h2>📅 LifeMap</h2>
+        <p>Your AI-generated daily schedule — study, mental health, sleep, exercise. Built around your life, not a template.</p>
+      </div>
+      <div class="lm-setup">
+        <div class="lm-setup-title">⚙️ Tell us about yourself</div>
+        <div class="lm-field">
+          <label>Current Semester / Year</label>
+          <select class="lm-select" id="lm-sem">
+            <option value="1">1st Year / Semester 1-2</option>
+            <option value="2" selected>2nd Year / Semester 3-4</option>
+            <option value="3">3rd Year / Semester 5-6</option>
+            <option value="final">Final Year</option>
+            <option value="exam">Exam month 🔥</option>
+          </select>
+        </div>
+        <div class="lm-field">
+          <label>How are you feeling mentally right now?</label>
+          <select class="lm-select" id="lm-mental">
+            <option value="good">Pretty good actually ✅</option>
+            <option value="stressed" selected>Stressed / overwhelmed 😰</option>
+            <option value="anxious">Anxious / overthinking 😟</option>
+            <option value="burnout">On the edge of burnout 🔴</option>
+          </select>
+        </div>
+        <div class="lm-field">
+          <label>Wake-up time</label>
+          <select class="lm-select" id="lm-wake">
+            <option value="6">6:00 AM</option>
+            <option value="7" selected>7:00 AM</option>
+            <option value="8">8:00 AM</option>
+            <option value="9">9:00 AM (weekend mode)</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="generateLifeMap()">📅 Generate My Day Plan</button>
+      </div>
+      <div class="lm-plan" id="lm-plan">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:16px;color:var(--accent);">✨ Your Personalised Day Plan</div>
+        <div id="lm-plan-content"></div>
+        <div class="notif-preview">
+          <div class="notif-icon">💌</div>
+          <div class="notif-text">
+            <strong>Sample notification you'll get:</strong><br>
+            <span id="lm-notif-sample"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPPORTUNITY HUB -->
+  <div id="screen-opphub" class="screen">
+    <div class="oh-container">
+      <div class="section-header">
+        <h2>💼 OpportunityHub</h2>
+        <p>Internships, hackathons, scholarships — filtered for your exact course. No noise, just what matters to you.</p>
+      </div>
+      <div class="oh-course-banner">
+        🎓 <span>Showing opportunities for: <strong id="oh-course-label">All Courses</strong> — <a href="#" style="color:var(--accent);text-decoration:none;" onclick="showScreen('home')">Change course in profile</a></span>
+      </div>
+      <div class="oh-filter-row">
+        <button class="oh-filter active" onclick="filterOpp(this,'all')">All</button>
+        <button class="oh-filter" onclick="filterOpp(this,'internship')">💼 Internships</button>
+        <button class="oh-filter" onclick="filterOpp(this,'hackathon')">⚡ Hackathons</button>
+        <button class="oh-filter" onclick="filterOpp(this,'scholarship')">🎓 Scholarships</button>
+        <button class="oh-filter" onclick="filterOpp(this,'program')">📋 Programs</button>
+      </div>
+      <div class="opp-grid" id="opp-grid">
+        <div class="opp-card" data-type="hackathon">
+          <div class="opp-card-top"><div class="opp-logo">⚡</div><span class="opp-type hackathon">Hackathon</span></div>
+          <div class="opp-title">Smart India Hackathon 2025</div>
+          <div class="opp-company">Govt. of India · National Level</div>
+          <div class="opp-tags"><span class="opp-tag">BTech</span><span class="opp-tag">BCA</span><span class="opp-tag">MCA</span></div>
+          <div class="opp-footer"><div><div class="opp-deadline">⏰ Deadline: 15 May</div><div class="opp-stipend">Prize: ₹1 Lakh</div></div><button class="apply-btn">Apply →</button></div>
+        </div>
+        <div class="opp-card" data-type="internship">
+          <div class="opp-card-top"><div class="opp-logo">🏢</div><span class="opp-type internship">Internship</span></div>
+          <div class="opp-title">Software Dev Intern</div>
+          <div class="opp-company">Razorpay · Remote</div>
+          <div class="opp-tags"><span class="opp-tag">BTech</span><span class="opp-tag">BCA</span><span class="opp-tag">2-3 months</span></div>
+          <div class="opp-footer"><div><div class="opp-deadline">⏰ Deadline: 20 May</div><div class="opp-stipend">₹25,000/month</div></div><button class="apply-btn">Apply →</button></div>
+        </div>
+        <div class="opp-card" data-type="scholarship">
+          <div class="opp-card-top"><div class="opp-logo">🎓</div><span class="opp-type scholarship">Scholarship</span></div>
+          <div class="opp-title">National Scholarship Portal (NSP)</div>
+          <div class="opp-company">Govt. of India · All courses</div>
+          <div class="opp-tags"><span class="opp-tag">SC/OBC/EWS</span><span class="opp-tag">Income based</span></div>
+          <div class="opp-footer"><div><div class="opp-deadline">⏰ Deadline: 30 June</div><div class="opp-stipend">Up to ₹50,000/yr</div></div><button class="apply-btn">Apply →</button></div>
+        </div>
+        <div class="opp-card" data-type="program">
+          <div class="opp-card-top"><div class="opp-logo">🧬</div><span class="opp-type program">Program</span></div>
+          <div class="opp-title">NEET Mentorship Programme</div>
+          <div class="opp-company">NMC · Pan India</div>
+          <div class="opp-tags"><span class="opp-tag">NEET</span><span class="opp-tag">Medical aspirants</span></div>
+          <div class="opp-footer"><div><div class="opp-deadline">⏰ Ongoing</div><div class="opp-stipend">Free · Mentored</div></div><button class="apply-btn">Apply →</button></div>
+        </div>
+        <div class="opp-card" data-type="internship">
+          <div class="opp-card-top"><div class="opp-logo">⚖️</div><span class="opp-type internship">Internship</span></div>
+          <div class="opp-title">Legal Intern — Corporate Law</div>
+          <div class="opp-company">Khaitan & Co. · Delhi / Mumbai</div>
+          <div class="opp-tags"><span class="opp-tag">LLB</span><span class="opp-tag">BA LLB</span></div>
+          <div class="opp-footer"><div><div class="opp-deadline">⏰ Deadline: 10 May</div><div class="opp-stipend">₹15,000/month</div></div><button class="apply-btn">Apply →</button></div>
+        </div>
+        <div class="opp-card" data-type="hackathon">
+          <div class="opp-card-top"><div class="opp-logo">🏥</div><span class="opp-type hackathon">Hackathon</span></div>
+          <div class="opp-title">Health Innovation Challenge</div>
+          <div class="opp-company">MoHFW · Medical + Tech students</div>
+          <div class="opp-tags"><span class="opp-tag">NEET</span><span class="opp-tag">BTech</span><span class="opp-tag">BCA</span></div>
+          <div class="opp-footer"><div><div class="opp-deadline">⏰ Deadline: 1 June</div><div class="opp-stipend">Prize: ₹2 Lakh</div></div><button class="apply-btn">Apply →</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOOD TRACKER -->
+  <div id="screen-moodtracker" class="screen">
+    <div class="mood-container">
+      <div class="section-header">
+        <h2>📊 Mood Tracker</h2>
+        <p>Log your mood daily. Spot patterns, understand yourself, take control of your mental health journey.</p>
+      </div>
+
+      <!-- LOG TODAY -->
+      <div class="mood-log-card">
+        <div class="mood-log-title">How are you feeling right now?</div>
+        <div class="mood-emoji-row" id="mood-emoji-row">
+          <button class="mood-emoji-btn" data-mood="5" data-label="Amazing" onclick="selectMood(this)">😄<span>Amazing</span></button>
+          <button class="mood-emoji-btn" data-mood="4" data-label="Good" onclick="selectMood(this)">🙂<span>Good</span></button>
+          <button class="mood-emoji-btn" data-mood="3" data-label="Okay" onclick="selectMood(this)">😐<span>Okay</span></button>
+          <button class="mood-emoji-btn" data-mood="2" data-label="Low" onclick="selectMood(this)">😔<span>Low</span></button>
+          <button class="mood-emoji-btn" data-mood="1" data-label="Awful" onclick="selectMood(this)">😢<span>Awful</span></button>
+        </div>
+        <div class="mood-note-row">
+          <input class="mood-note-input" id="mood-note" placeholder="Optional: what's making you feel this way? (private)" />
+          <button class="mood-log-btn" onclick="logMood()" id="mood-log-btn" disabled>Log Mood</button>
+        </div>
+        <div id="mood-log-feedback" style="font-size:.82rem;color:var(--accent3);margin-top:8px;min-height:18px;"></div>
+      </div>
+
+      <!-- 7-DAY CHART -->
+      <div class="mood-chart-card">
+        <div class="mood-chart-header">
+          <div class="mood-chart-title">Your 7-Day Mood Journey</div>
+          <div class="mood-streak" id="mood-streak">🔥 0 day streak</div>
+        </div>
+        <div class="mood-chart-wrap">
+          <div class="mood-chart" id="mood-chart"></div>
+        </div>
+        <div class="mood-chart-labels" id="mood-chart-labels"></div>
+      </div>
+
+      <!-- INSIGHT CARD -->
+      <div class="mood-insight-card" id="mood-insight-card" style="display:none">
+        <div class="mood-insight-title">🧠 AI Insight</div>
+        <div class="mood-insight-text" id="mood-insight-text"></div>
+        <button class="mood-insight-refresh" onclick="generateMoodInsight()">↻ Refresh insight</button>
+      </div>
+
+      <!-- HISTORY LIST -->
+      <div class="mood-history-title">Recent Entries</div>
+      <div class="mood-history-list" id="mood-history-list"></div>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<!-- NOTIFICATION TOAST -->
+<div id="notif-toast"></div>
+
+<!-- PREMIUM MODAL -->
+<div id="premium-modal">
+  <div class="premium-card">
+    <div class="premium-crown">👑</div>
+    <div class="premium-title">MINDRIFT Premium</div>
+    <div class="premium-price">₹49<span style="font-size:1rem;font-weight:400;color:var(--muted);">/month</span></div>
+    <div class="premium-price-note">Less than one chai a week ☕</div>
+    <div class="premium-perks">
+      <div class="premium-perk">✅ Unlimited SoulSync AI chats</div>
+      <div class="premium-perk">✅ Advanced sentiment analysis & mood tracking</div>
+      <div class="premium-perk">✅ Priority TherapyBridge bookings</div>
+      <div class="premium-perk">✅ Personalised weekly LifeMap</div>
+      <div class="premium-perk">✅ Early access to new features</div>
+    </div>
+    <button class="btn-premium" onclick="activatePremium()">⭐ Upgrade Now — ₹49/month</button>
+    <button class="btn-cancel" onclick="closePremium()">Maybe later</button>
+  </div>
+</div>
+
+<!-- BOOK MODAL -->
+<div id="book-modal">
+  <div class="book-card">
+    <div class="book-title" id="book-modal-title">Book Session</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:4px;">Select date:</div>
+    <div class="time-slots" id="date-slots"></div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:4px;">Select time:</div>
+    <div class="time-slots" id="time-slots"></div>
+    <button class="book-confirm-btn" onclick="confirmBooking()">✅ Confirm Booking</button>
+    <button class="book-close-btn" onclick="closeBookModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- EXERCISE MODAL -->
+<div id="exercise-modal" style="position:fixed;inset:0;background:rgba(7,11,20,.85);backdrop-filter:blur(8px);z-index:3000;display:none;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:460px;width:100%;animation:popIn .4s ease;">
+    <div style="font-size:2.5rem;text-align:center;margin-bottom:12px;" id="ex-modal-icon">💪</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem;text-align:center;margin-bottom:16px;" id="ex-modal-name"></div>
+    <div style="font-size:.9rem;line-height:1.8;color:var(--muted);margin-bottom:24px;" id="ex-modal-desc"></div>
+    <button class="btn-primary" onclick="document.getElementById('exercise-modal').style.display='none'">Got it, let's go! 💪</button>
+  </div>
+</div>
+
+<!-- MEDITATION MODAL -->
+<div id="meditation-modal" style="position:fixed;inset:0;background:rgba(7,11,20,.92);backdrop-filter:blur(12px);z-index:3000;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;">
+  <div style="max-width:500px;width:100%;animation:fadeIn .8s ease;">
+    <div style="font-size:2rem;margin-bottom:8px;" id="med-modal-icon">🌿</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.3rem;margin-bottom:8px;color:var(--accent2);" id="med-modal-name"></div>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:24px;" id="med-modal-dur"></div>
+    <div style="font-size:1rem;line-height:2;color:var(--text);font-style:italic;" id="med-modal-text"></div>
+    <button style="margin-top:32px;padding:12px 28px;background:var(--surface);border:1px solid var(--border);border-radius:50px;color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;" onclick="document.getElementById('meditation-modal').style.display='none'">✨ End Session</button>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───
+let currentUser = null;
+
+// ─── THEME ───
+let isDark = localStorage.getItem('mindrift_theme') !== 'light';
+function applyTheme() {
+  if (isDark) {
+    document.body.classList.remove('light-mode');
+    document.getElementById('theme-toggle').textContent = '🌙';
+  } else {
+    document.body.classList.add('light-mode');
+    document.getElementById('theme-toggle').textContent = '☀️';
+  }
+}
+function toggleTheme() {
+  isDark = !isDark;
+  localStorage.setItem('mindrift_theme', isDark ? 'dark' : 'light');
+  applyTheme();
+}
+// Apply on load
+document.addEventListener('DOMContentLoaded', applyTheme);
+let chatCount = 5;
+let isPremium = false;
+let currentPersona = 'bro';
+let chatHistory = [];
+let breatheRunning = false;
+let breatheInterval = null;
+let breathePhase = 0;
+let breatheConfig = {in:4,hold:4,out:4,hold2:4,label:'Box Breathing'};
+let sessionCount = parseInt(localStorage.getItem('breatheSessions')||'0');
+let selectedTag = '#ExamStress';
+let selectedTimeSlot = null;
+let selectedDateSlot = null;
+let selectedTherapist = '';
+let notifTimers = [];
+
+// ─── SPLASH + AUTH ───
+setTimeout(() => {
+  document.getElementById('splash').classList.add('hidden');
+  document.getElementById('auth-screen').classList.add('visible');
+}, 2800);
+
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('signin-form').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+}
+
+function doSignIn() {
+  const email = document.getElementById('si-email').value.trim();
+  const pass = document.getElementById('si-pass').value.trim();
+  if (!email || !pass) { alert('Please fill in all fields'); return; }
+  const saved = JSON.parse(localStorage.getItem('mindrift_user') || 'null');
+  if (saved && saved.email === email) {
+    loginUser(saved);
+  } else {
+    loginUser({ name: email.split('@')[0], email, course: 'btech' });
+  }
+}
+
+function doSignUp() {
+  const name = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const course = document.getElementById('su-course').value;
+  if (!name || !email || !course) { alert('Please fill in all fields'); return; }
+  const user = { name, email, course };
+  localStorage.setItem('mindrift_user', JSON.stringify(user));
+  // New users go to onboarding first
+  currentUser = user;
+  document.getElementById('auth-screen').classList.remove('visible');
+  startOnboarding(name);
+}
+
+function doGuest() {
+  currentUser = { name: 'Guest', email: '', course: 'btech' };
+  document.getElementById('auth-screen').classList.remove('visible');
+  startOnboarding('Guest');
+}
+
+function loginUser(user) {
+  currentUser = user;
+  document.getElementById('auth-screen').classList.remove('visible');
+  document.getElementById('onboarding-screen').classList.remove('visible');
+  document.getElementById('app').classList.add('visible');
+  const firstName = user.name.split(' ')[0];
+  document.getElementById('header-name').textContent = firstName;
+  document.getElementById('greeting-name').textContent = firstName;
+  document.getElementById('oh-course-label').textContent = courseLabel(user.course);
+  // Apply onboarding profile to SoulSync tone
+  applyProfileToApp();
+  updatePremiumBadge();
+  setTimeout(() => spawnNotif('💌', "Hey " + firstName + "! MindDrift is here for you 💙", 'MINDRIFT'), 1500);
+  setTimeout(() => spawnNotif('📅', "Your LifeMap is ready — tap to see today's plan!", 'LifeMap'), 6000);
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('auth-screen').classList.add('visible');
+}
+
+function courseLabel(c) {
+  const m = {btech:'B.Tech / B.E.',bca:'BCA / MCA',mba:'MBA / PGDM',neet:'NEET Aspirant',law:'Law Student',bsc:'B.Sc / M.Sc',bcom:'B.Com',arts:'BA / MA',ca:'CA / CS / CMA',jee:'JEE Aspirant',other:'All Courses'};
+  return m[c] || 'All Courses';
+}
+
+// ─── NAV ───
+function showScreen(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'moodtracker') { renderMoodChart(); renderMoodHistory(); }
+}
+
+function setActiveNav(idx) {
+  const btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  if (btns[idx]) btns[idx].classList.add('active');
+}
+
+// ─── SOULSYNC AI ───
+const personaPrompts = {
+  bro: "You are SoulSync AI, speaking as a caring older Indian brother (big bro). You speak casually with warmth, use words like 'bhai', 'yaar', 'bro', occasional Hindi mixed in naturally. You're supportive, real, and never preachy. You do sentiment analysis internally and respond based on their emotional state. Keep responses to 3-5 sentences. Don't give clinical advice — give brother-level wisdom.",
+  sis: "You are SoulSync AI, speaking as a caring older Indian sister (big sis). You're warm, nurturing, understanding. Use casual Hindi-English mix naturally. Call them 'beta' or 'yaar' sometimes. Sense their emotional state and respond with heart. 3-5 sentences, real and warm.",
+  friend: "You are SoulSync AI, speaking as their absolute best friend. Casual, funny when appropriate, always in their corner. Use Gen Z language naturally. Sense their mood — if they're sad, be there; if they just need to vent, listen. 3-5 sentences.",
+  mentor: "You are SoulSync AI, a wise and calm mentor figure. Give thoughtful perspective, ask good questions, help them think clearly. Formal but warm. Sense their emotional state and respond with wisdom. 3-5 sentences.",
+  calm: "You are SoulSync AI, a gentle calming presence. Speak slowly and soothingly in text. Your responses feel like a warm hug. Validate their feelings deeply. Suggest one calming action. 3-5 sentences."
+};
+
+const sentimentMap = [
+  { words: ['great','amazing','happy','good','excited','won','love','😊','🎉','yay'], sentiment: 'positive', label: '😊 Positive' },
+  { words: ['fail','failed','cry','hopeless','worthless','end','give up','suicide','die','hate myself','can\'t do','broken'], sentiment: 'crisis', label: '🚨 Needs Care' },
+  { words: ['stress','pressure','exam','deadline','tired','exhausted','overwhelm','mess'], sentiment: 'stressed', label: '😰 Stressed' },
+];
+
+function detectSentiment(text) {
+  const t = text.toLowerCase();
+  for (const s of sentimentMap) {
+    if (s.words.some(w => t.includes(w))) return s;
+  }
+  return { sentiment: 'neutral', label: '💬 Neutral' };
+}
+
+function setPersona(btn, persona) {
+  document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPersona = persona;
+}
+
+async function sendSoulSync() {
+  if (chatCount <= 0 && !isPremium) { showPremium(); return; }
+  const input = document.getElementById('ss-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  if (!isPremium) { chatCount--; updateChatCount(); }
+
+  const chatWin = document.getElementById('ss-chat-window');
+  const sent = detectSentiment(text);
+
+  // Disable send button while processing
+  const sendBtn = document.querySelector('.ss-send-btn');
+  sendBtn.disabled = true;
+
+  // User bubble
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-msg user';
+  userMsg.innerHTML = `<div class="chat-user-label">You</div><div class="chat-bubble user">${text}</div><div><span class="sentiment-badge sent-${sent.sentiment}">${sent.label}</span></div>`;
+  chatWin.appendChild(userMsg);
+
+  // Bot typing bubble — unique ID each time
+  const bubbleId = 'bot-bubble-' + Date.now();
+  const botMsg = document.createElement('div');
+  botMsg.className = 'chat-msg bot';
+  const personaLabels = {bro:'Big Bro 🤜',sis:'Big Sis 🤗',friend:'Best Friend 👯',mentor:'Wise Mentor 🎓',calm:'Calm Guide 🌿'};
+  botMsg.innerHTML = `<div class="chat-bot-label">SoulSync AI · ${personaLabels[currentPersona]||'SoulSync'}</div><div class="chat-bubble bot" id="${bubbleId}"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  chatWin.appendChild(botMsg);
+  chatWin.scrollTop = chatWin.scrollHeight;
+
+  chatHistory.push({ role: 'user', content: text });
+
+  try {
+    const systemPrompt = personaPrompts[currentPersona] + `\n\nUser sentiment detected: ${sent.label}. User course: ${currentUser?.course || 'student'}. Respond accordingly. Keep it to 3-5 sentences max.`;
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 300,
+        system: systemPrompt,
+        messages: chatHistory.slice(-8)
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || "I'm here with you. You're not alone in this 💙";
+    chatHistory.push({ role: 'assistant', content: reply });
+
+    // Typewriter reveal
+    const bubble = document.getElementById(bubbleId);
+    bubble.textContent = '';
+    let i = 0;
+    const typeTimer = setInterval(() => {
+      bubble.textContent += reply[i];
+      i++;
+      chatWin.scrollTop = chatWin.scrollHeight;
+      if (i >= reply.length) clearInterval(typeTimer);
+    }, 18);
+  } catch (e) {
+    const bubble = document.getElementById(bubbleId);
+    bubble.textContent = "You're not alone. Whatever you're feeling is valid. I'm right here 💙";
+  }
+
+  sendBtn.disabled = false;
+
+  if (sent.sentiment === 'crisis') {
+    setTimeout(() => {
+      const crisisNote = document.createElement('div');
+      crisisNote.className = 'chat-msg bot';
+      crisisNote.innerHTML = `<div class="chat-bubble bot" style="border-color:rgba(252,129,129,.3);background:rgba(252,129,129,.05);">💙 If you ever need immediate help: <strong>iCall: 9152987821</strong> · <strong>Vandrevala: 1860-2662-345</strong>. You matter deeply.</div>`;
+      chatWin.appendChild(crisisNote);
+      chatWin.scrollTop = chatWin.scrollHeight;
+    }, 1200);
+  }
+  chatWin.scrollTop = chatWin.scrollHeight;
+}
+
+function updateChatCount() {
+  const el = document.getElementById('chat-count-display');
+  const badge = document.getElementById('premium-badge');
+  if (isPremium) {
+    el.textContent = '∞ Unlimited chats (Premium)';
+    badge.innerHTML = '⭐ Premium Active';
+  } else {
+    el.textContent = `${chatCount} chat${chatCount !== 1 ? 's' : ''} remaining today`;
+    badge.innerHTML = `⭐ Free · ${chatCount} chats left`;
+  }
+}
+
+// ─── ECHOSPACE ───
+function toggleTag(btn, tag) {
+  document.querySelectorAll('.post-tag-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedTag = tag;
+}
+
+function postEcho() {
+  const input = document.getElementById('echo-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const colors = [['rgba(99,179,237,.15)','#63b3ed'],['rgba(159,122,234,.15)','#9f7aea'],['rgba(104,211,145,.15)','#68d391'],['rgba(246,173,85,.15)','#f6ad55']];
+  const [bg, fg] = colors[Math.floor(Math.random() * colors.length)];
+  const names = ['Nova_','Echo_','Star_','Drift_','Soul_','Quiet_','Moon_','Rain_'];
+  const name = names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 900 + 100);
+  const tagClean = selectedTag.replace('#','');
+  const tagColors = {ExamStress:['rgba(99,179,237,.1)','#63b3ed'],Anxiety:['rgba(159,122,234,.1)','#9f7aea'],Lonely:['rgba(118,228,247,.1)','#76e4f7'],Confused:['rgba(246,173,85,.1)','#f6ad55'],WinToday:['rgba(104,211,145,.1)','#68d391']};
+  const [tBg, tFg] = tagColors[tagClean] || tagColors['ExamStress'];
+  const card = document.createElement('div');
+  card.className = 'post-card';
+  card.dataset.tag = tagClean;
+  card.style.animation = 'popIn .4s ease';
+  card.innerHTML = `
+    <div class="post-header">
+      <div class="post-header-left">
+        <div class="anon-avatar" style="background:${bg};color:${fg};">${name[0]}</div>
+        <div><div class="post-user">${name}</div><div class="post-time">Just now</div></div>
+      </div>
+      <span class="post-topic" style="background:${tBg};color:${tFg};">${selectedTag}</span>
+    </div>
+    <div class="post-text">${text}</div>
+    <div class="post-actions">
+      <button class="post-action-btn" onclick="relatePost(this)">❤️ <span>0</span> relate</button>
+      <button class="post-action-btn" onclick="toggleReplies(this)">💬 0 replies</button>
+    </div>
+    <div class="replies-section">
+      <div class="reply-input-row">
+        <input class="reply-input" placeholder="Reply anonymously..." />
+        <button class="reply-submit" onclick="submitReply(this)">→</button>
+      </div>
+    </div>`;
+  document.getElementById('echo-posts').insertBefore(card, document.getElementById('echo-posts').firstChild);
+  input.value = '';
+}
+
+function relatePost(btn) {
+  const span = btn.querySelector('span');
+  span.textContent = parseInt(span.textContent) + 1;
+  btn.style.color = '#63b3ed';
+}
+
+function toggleReplies(btn) {
+  const card = btn.closest('.post-card');
+  const replies = card.querySelector('.replies-section');
+  replies.style.display = replies.style.display === 'block' ? 'none' : 'block';
+}
+
+function filterEcho(btn, tag) {
+  document.querySelectorAll('.echo-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.post-card').forEach(card => {
+    card.style.display = (tag === 'all' || card.dataset.tag === tag) ? 'block' : 'none';
+  });
+}
+
+function submitReply(btn) {
+  const input = btn.previousElementSibling;
+  const text = input.value.trim();
+  if (!text) return;
+  const names = ['Nova_','Echo_','Star_','Drift_'];
+  const name = names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 900 + 100);
+  const reply = document.createElement('div');
+  reply.className = 'reply-card';
+  reply.style.animation = 'popIn .3s ease';
+  reply.innerHTML = `<strong style="color:var(--accent2)">${name}:</strong> ${text}`;
+  btn.parentElement.insertBefore(reply, btn.parentElement.firstChild);
+  input.value = '';
+}
+
+// ─── CALMCORE BREATHING ───
+function switchCalmTab(panel, btn) {
+  document.querySelectorAll('.calm-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.calm-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  if (breatheRunning) { clearInterval(breatheInterval); breatheRunning = false; document.getElementById('breathe-start-btn').textContent = '▶ Start'; }
+}
+
+function setBreatheMode(btn, inT, hold1, outT, hold2, label) {
+  document.querySelectorAll('.breathe-mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  breatheConfig = { in: inT, hold: hold1, out: outT, hold2: hold2, label };
+  if (breatheRunning) { clearInterval(breatheInterval); breatheRunning = false; startBreathe(); }
+}
+
+function toggleBreathe() {
+  if (breatheRunning) {
+    clearInterval(breatheInterval);
+    breatheRunning = false;
+    document.getElementById('breathe-start-btn').textContent = '▶ Start';
+    document.getElementById('breathe-label').textContent = 'Ready';
+    document.getElementById('breathe-sublabel').textContent = 'Press Start to begin';
+    const orb = document.getElementById('breathe-orb');
+    orb.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+    orb.style.transform = 'scale(1)';
+  } else {
+    startBreathe();
+  }
+}
+
+function startBreathe() {
+  breatheRunning = true;
+  document.getElementById('breathe-start-btn').textContent = '⏹ Stop';
+  const phases = [
+    { label: 'Breathe In...', sub: `Inhale for ${breatheConfig.in} seconds`, dur: breatheConfig.in, scale: 1.55, color: 'radial-gradient(circle at 40% 35%, #63b3ed, #9f7aea)' },
+    breatheConfig.hold > 0 ? { label: 'Hold...', sub: `Hold for ${breatheConfig.hold} seconds`, dur: breatheConfig.hold, scale: 1.55, color: 'radial-gradient(circle at 40% 35%, #9f7aea, #68d391)' } : null,
+    { label: 'Breathe Out...', sub: `Exhale for ${breatheConfig.out} seconds`, dur: breatheConfig.out, scale: 1, color: 'radial-gradient(circle at 40% 35%, #68d391, #63b3ed)' },
+    breatheConfig.hold2 > 0 ? { label: 'Hold...', sub: `Hold for ${breatheConfig.hold2} seconds`, dur: breatheConfig.hold2, scale: 1, color: 'radial-gradient(circle at 40% 35%, #76e4f7, #63b3ed)' } : null,
+  ].filter(Boolean);
+
+  let phaseIdx = 0;
+  let phaseTimer = 0;
+  let cycleCount = 0;
+
+  const orb = document.getElementById('breathe-orb');
+  const label = document.getElementById('breathe-label');
+  const sub = document.getElementById('breathe-sublabel');
+  const sessionEl = document.getElementById('breathe-session-count');
+
+  function runPhase() {
+    const p = phases[phaseIdx];
+    label.textContent = p.label;
+    sub.textContent = p.sub;
+    orb.style.background = p.color;
+    orb.style.transition = `transform ${p.dur}s ease, opacity ${p.dur}s ease`;
+    orb.style.transform = `scale(${p.scale / 1})`;
+    orb.style.opacity = p.scale > 1 ? '1' : '0.65';
+    phaseTimer = setTimeout(() => {
+      phaseIdx = (phaseIdx + 1) % phases.length;
+      if (phaseIdx === 0) {
+        cycleCount++;
+        if (cycleCount === 3) {
+          sessionCount++;
+          localStorage.setItem('breatheSessions', sessionCount);
+          sessionEl.textContent = `🔥 ${sessionCount} sessions completed this week`;
+          orb.style.background = 'radial-gradient(circle at 40% 35%, #68d391, #38a169)';
+          label.textContent = '✨ You did it';
+          sub.textContent = 'Your nervous system is resetting. You\'re doing great.';
+          clearInterval(breatheInterval);
+          breatheRunning = false;
+          document.getElementById('breathe-start-btn').textContent = '▶ Again';
+          return;
+        }
+      }
+      if (breatheRunning) runPhase();
+    }, p.dur * 1000);
+  }
+
+  runPhase();
+  breatheInterval = { clear: () => clearTimeout(phaseTimer) };
+}
+
+function startExercise(name, desc) {
+  document.getElementById('ex-modal-name').textContent = name;
+  document.getElementById('ex-modal-desc').textContent = desc;
+  document.getElementById('exercise-modal').style.display = 'flex';
+}
+
+function startMeditation(name, text, mins) {
+  document.getElementById('med-modal-name').textContent = name;
+  document.getElementById('med-modal-dur').textContent = `${mins} minute guided session · Find a quiet spot`;
+  document.getElementById('med-modal-text').textContent = text;
+  document.getElementById('meditation-modal').style.display = 'flex';
+}
+
+// ─── THERAPYBRIDGE ───
+function filterTherapists(btn, spec) {
+  document.querySelectorAll('.tb-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.therapist-card').forEach(c => {
+    c.style.display = (spec === 'all' || (c.dataset.spec || '').includes(spec)) ? 'block' : 'none';
+  });
+}
+
+function openBookModal(name) {
+  selectedTherapist = name;
+  document.getElementById('book-modal-title').textContent = `Book with ${name}`;
+  const now = new Date();
+  const dateSlots = document.getElementById('date-slots');
+  dateSlots.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i);
+    const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : d.toLocaleDateString('en-IN', {weekday:'short', day:'numeric'});
+    const btn = document.createElement('button');
+    btn.className = 'time-slot';
+    btn.textContent = label;
+    btn.onclick = function() { document.querySelectorAll('#date-slots .time-slot').forEach(b => b.classList.remove('active')); this.classList.add('active'); selectedDateSlot = label; };
+    dateSlots.appendChild(btn);
+  }
+  const timeSlots = document.getElementById('time-slots');
+  timeSlots.innerHTML = ['10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','6:00 PM','7:00 PM','8:00 PM'].map(t => `<button class="time-slot" onclick="selectTimeSlot(this,'${t}')">${t}</button>`).join('');
+  document.getElementById('book-modal').classList.add('visible');
+}
+
+function selectTimeSlot(btn, t) {
+  document.querySelectorAll('#time-slots .time-slot').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedTimeSlot = t;
+}
+
+function confirmBooking() {
+  if (!selectedDateSlot || !selectedTimeSlot) { alert('Please select date and time'); return; }
+  closeBookModal();
+  spawnNotif('✅', `Session with ${selectedTherapist} booked for ${selectedDateSlot} at ${selectedTimeSlot}!`, 'TherapyBridge');
+}
+
+function closeBookModal() { document.getElementById('book-modal').classList.remove('visible'); }
+
+// ─── LIFEMAP ───
+const planTemplates = {
+  stressed_exam: [
+    {time:'7:00 AM',icon:'🌅',text:'Wake up, 5-min stretch + 1 glass water. No phone for 10 mins.',cat:'cat-break'},
+    {time:'7:30 AM',icon:'🥣',text:'Light breakfast. Eat something warm — your brain needs fuel.',cat:'cat-break'},
+    {time:'8:00 AM',icon:'📚',text:'Study Block 1 — hardest subject first while mind is fresh. Pomodoro: 25 min study + 5 min break.',cat:'cat-study'},
+    {time:'10:30 AM',icon:'🧘',text:'CalmCore — 10 min Body Scan to reset your nervous system.',cat:'cat-mental'},
+    {time:'11:00 AM',icon:'📚',text:'Study Block 2 — revision / practice problems.',cat:'cat-study'},
+    {time:'1:00 PM',icon:'🍽️',text:'Proper lunch. Step outside for 10 minutes of sunlight.',cat:'cat-break'},
+    {time:'2:00 PM',icon:'📚',text:'Study Block 3. Difficult concepts only — save easy stuff for evenings.',cat:'cat-study'},
+    {time:'4:00 PM',icon:'🤸',text:'Physical break — walk, jog, or home workout. Non-negotiable.',cat:'cat-physical'},
+    {time:'5:00 PM',icon:'📚',text:'Study Block 4 — lighter material: notes review, mind maps.',cat:'cat-study'},
+    {time:'7:00 PM',icon:'🍽️',text:'Dinner. Talk to a friend or family member for 15 mins.',cat:'cat-break'},
+    {time:'8:00 PM',icon:'📚',text:'Final study hour. Write 3 things you learned today.',cat:'cat-study'},
+    {time:'9:30 PM',icon:'🌙',text:'Wind down. No screens after this. Journal or read for 20 mins.',cat:'cat-mental'},
+    {time:'10:30 PM',icon:'😴',text:'Sleep. You\'ve done enough today. Rest is part of the work.',cat:'cat-sleep'},
+  ],
+  anxious: [
+    {time:'7:30 AM',icon:'🌅',text:'Slow morning. Start with 3 deep breaths before getting up.',cat:'cat-mental'},
+    {time:'8:00 AM',icon:'🌬️',text:'CalmCore — 4-7-8 breathing for 5 minutes. This is your anchor.',cat:'cat-mental'},
+    {time:'8:30 AM',icon:'🥣',text:'Breakfast without screens. Just eat and breathe.',cat:'cat-break'},
+    {time:'9:30 AM',icon:'📚',text:'Study — short 20 min blocks only today. Quality over quantity.',cat:'cat-study'},
+    {time:'11:00 AM',icon:'🚶',text:'Walk outside for 20 minutes. No podcast, just walk and observe.',cat:'cat-physical'},
+    {time:'12:00 PM',icon:'📚',text:'Study Block 2. Write down worries before starting — gets them out of your head.',cat:'cat-study'},
+    {time:'1:30 PM',icon:'🍽️',text:'Warm lunch. Eat slowly. Sunlight if possible.',cat:'cat-break'},
+    {time:'3:00 PM',icon:'📚',text:'Light study — revision only. No new topics today.',cat:'cat-study'},
+    {time:'5:00 PM',icon:'🤸',text:'Exercise or stretching — this reduces cortisol better than anything.',cat:'cat-physical'},
+    {time:'7:00 PM',icon:'🍽️',text:'Dinner. Connect with one person who makes you feel safe.',cat:'cat-break'},
+    {time:'8:30 PM',icon:'🌿',text:'Meditation — Body Scan on CalmCore. Your mind deserves quiet.',cat:'cat-mental'},
+    {time:'10:00 PM',icon:'😴',text:'Sleep. You are safe. Everything can wait until tomorrow.',cat:'cat-sleep'},
+  ],
+};
+
+const genZNotifs = [
+  "bestie ur {task} is sitting there looking at u 👀 go handle it babes",
+  "babe it's {time} and u said u were gonna study at {time} sooo.. 💀",
+  "ok real talk ur future self is literally begging u to do {task} rn 🙏",
+  "yk that feeling when u finally finish {task}? u could have that rn bestie",
+  "{task} won't do itself boo 😭 and u KNOW that",
+  "gentle reminder that ur {task} is still pending and i believe in u 💙",
+];
+
+function generateLifeMap() {
+  const sem = document.getElementById('lm-sem').value;
+  const mental = document.getElementById('lm-mental').value;
+  const wake = document.getElementById('lm-wake').value;
+  let template = planTemplates.stressed_exam;
+  if (mental === 'anxious' || mental === 'burnout') template = planTemplates.anxious;
+
+  const content = document.getElementById('lm-plan-content');
+  content.innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'plan-day';
+  card.innerHTML = `<div class="plan-day-header">📅 Today's Plan — Optimised for your mental state</div><div class="plan-blocks" id="plan-blocks-today"></div>`;
+  content.appendChild(card);
+
+  const blocks = document.getElementById('plan-blocks-today');
+  template.forEach((b, i) => {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'plan-block';
+      el.style.animation = 'slideIn .3s ease';
+      el.innerHTML = `<div class="plan-block-time">${b.time}</div><div class="plan-block-icon">${b.icon}</div><div class="plan-block-text">${b.text}</div><span class="plan-block-cat ${b.cat}">${b.cat.replace('cat-','')}</span>`;
+      blocks.appendChild(el);
+    }, i * 80);
+  });
+
+  const notif = genZNotifs[Math.floor(Math.random() * genZNotifs.length)]
+    .replace('{task}', 'study block')
+    .replace('{time}', '2:00 PM');
+  document.getElementById('lm-notif-sample').textContent = notif;
+
+  setTimeout(() => {
+    const plan = document.getElementById('lm-plan');
+    plan.classList.add('visible');
+    plan.scrollIntoView({ behavior: 'smooth' });
+    spawnNotif('📅', notif, 'LifeMap');
+  }, 400);
+}
+
+// ─── OPPHUB ───
+function filterOpp(btn, type) {
+  document.querySelectorAll('.oh-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.opp-card').forEach(c => {
+    c.style.display = (type === 'all' || c.dataset.type === type) ? 'block' : 'none';
+  });
+}
+
+// ─── PREMIUM ───
+function showPremium() { document.getElementById('premium-modal').classList.add('visible'); }
+function closePremium() { document.getElementById('premium-modal').classList.remove('visible'); }
+function activatePremium() {
+  isPremium = true;
+  closePremium();
+  updateChatCount();
+  spawnNotif('⭐', 'Premium activated! Unlimited SoulSync chats unlocked 🎉', 'MINDRIFT Premium');
+}
+function updatePremiumBadge() {
+  updateChatCount();
+}
+
+// ─── NOTIFICATION TOASTS ───
+function spawnNotif(emoji, text, app) {
+  const toast = document.getElementById('notif-toast');
+  const item = document.createElement('div');
+  item.className = 'toast-item';
+  item.innerHTML = `<div class="toast-emoji">${emoji}</div><div><div class="toast-text">${text}</div><div class="toast-app">${app}</div></div>`;
+  toast.appendChild(item);
+  setTimeout(() => {
+    item.classList.add('removing');
+    setTimeout(() => item.remove(), 400);
+  }, 5000);
+}
+
+
+// ─── MOOD TRACKER ───
+let selectedMoodValue = null;
+let moodLog = JSON.parse(localStorage.getItem('mindrift_mood') || '[]');
+
+const moodConfig = {
+  5: { emoji: '😄', label: 'Amazing', color: '#68d391', bg: 'rgba(104,211,145,.25)' },
+  4: { emoji: '🙂', label: 'Good',    color: '#63b3ed', bg: 'rgba(99,179,237,.25)' },
+  3: { emoji: '😐', label: 'Okay',    color: '#f6ad55', bg: 'rgba(246,173,85,.25)' },
+  2: { emoji: '😔', label: 'Low',     color: '#9f7aea', bg: 'rgba(159,122,234,.25)' },
+  1: { emoji: '😢', label: 'Awful',   color: '#fc8181', bg: 'rgba(252,129,129,.25)' },
+};
+
+function selectMood(btn) {
+  document.querySelectorAll('.mood-emoji-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedMoodValue = parseInt(btn.dataset.mood);
+  document.getElementById('mood-log-btn').disabled = false;
+}
+
+function logMood() {
+  if (!selectedMoodValue) return;
+  const note = document.getElementById('mood-note').value.trim();
+  const now = new Date();
+  const entry = {
+    mood: selectedMoodValue,
+    note,
+    timestamp: now.toISOString(),
+    dateStr: now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+    dayStr: now.toLocaleDateString('en-IN', { weekday: 'short' }),
+  };
+  moodLog.unshift(entry);
+  if (moodLog.length > 30) moodLog = moodLog.slice(0, 30);
+  localStorage.setItem('mindrift_mood', JSON.stringify(moodLog));
+
+  // Reset UI
+  document.querySelectorAll('.mood-emoji-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('mood-note').value = '';
+  document.getElementById('mood-log-btn').disabled = true;
+  selectedMoodValue = null;
+
+  const fb = document.getElementById('mood-log-feedback');
+  const m = moodConfig[entry.mood];
+  fb.textContent = `${m.emoji} Logged! Feeling ${m.label}. Keep checking in 💙`;
+  setTimeout(() => fb.textContent = '', 3000);
+
+  renderMoodChart();
+  renderMoodHistory();
+  if (moodLog.length >= 3) generateMoodInsight();
+  spawnNotif('📊', `Mood logged: ${m.emoji} ${m.label}`, 'Mood Tracker');
+}
+
+function renderMoodChart() {
+  const chart = document.getElementById('mood-chart');
+  const labels = document.getElementById('mood-chart-labels');
+  chart.innerHTML = '';
+  labels.innerHTML = '';
+
+  // Build last 7 days array
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dayStr = d.toLocaleDateString('en-IN', { weekday: 'short' });
+    const dateKey = d.toDateString();
+    const entry = moodLog.find(e => new Date(e.timestamp).toDateString() === dateKey);
+    days.push({ dayStr, entry });
+  }
+
+  days.forEach(({ dayStr, entry }) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'mood-bar-wrap';
+
+    if (entry) {
+      const m = moodConfig[entry.mood];
+      const heightPct = (entry.mood / 5) * 100;
+      const bar = document.createElement('div');
+      bar.className = 'mood-bar';
+      bar.style.height = heightPct + '%';
+      bar.style.background = `linear-gradient(180deg, ${m.color}, ${m.bg})`;
+      bar.dataset.tip = `${m.emoji} ${m.label}`;
+      const emoji = document.createElement('div');
+      emoji.className = 'mood-bar-emoji';
+      emoji.textContent = m.emoji;
+      wrap.appendChild(emoji);
+      wrap.appendChild(bar);
+    } else {
+      const empty = document.createElement('div');
+      empty.className = 'mood-bar';
+      empty.style.height = '4px';
+      empty.style.background = 'var(--surface2)';
+      wrap.appendChild(empty);
+    }
+    chart.appendChild(wrap);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'mood-day-label';
+    lbl.textContent = dayStr;
+    labels.appendChild(lbl);
+  });
+
+  // Streak
+  let streak = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const hasEntry = moodLog.some(e => new Date(e.timestamp).toDateString() === d.toDateString());
+    if (hasEntry) streak++;
+    else break;
+  }
+  document.getElementById('mood-streak').textContent = `🔥 ${streak} day streak`;
+}
+
+function renderMoodHistory() {
+  const list = document.getElementById('mood-history-list');
+  list.innerHTML = '';
+  moodLog.slice(0, 7).forEach(entry => {
+    const m = moodConfig[entry.mood];
+    const item = document.createElement('div');
+    item.className = 'mood-history-item';
+    item.innerHTML = `
+      <div class="mood-history-emoji">${m.emoji}</div>
+      <div class="mood-history-info">
+        <div class="mood-history-label" style="color:${m.color}">${m.label}</div>
+        <div class="mood-history-date">${entry.dateStr} · ${new Date(entry.timestamp).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+        ${entry.note ? `<div class="mood-history-note">"${entry.note}"</div>` : ''}
+      </div>`;
+    list.appendChild(item);
+  });
+  if (moodLog.length === 0) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:.88rem;text-align:center;padding:24px 0;">No entries yet. Log your first mood above! 💙</div>';
+  }
+}
+
+async function generateMoodInsight() {
+  if (moodLog.length < 2) return;
+  const insightCard = document.getElementById('mood-insight-card');
+  const insightText = document.getElementById('mood-insight-text');
+  insightCard.style.display = 'block';
+  insightText.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+
+  const recent = moodLog.slice(0, 7).map(e => `${e.dateStr}: ${moodConfig[e.mood].label}${e.note ? ' ("' + e.note + '")' : ''}`).join(', ');
+  const avg = (moodLog.slice(0, 7).reduce((s, e) => s + e.mood, 0) / Math.min(moodLog.length, 7)).toFixed(1);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 200,
+        system: "You are a warm, insightful student wellness coach. Given a student's mood log, give ONE short, personalized insight (2-3 sentences). Be warm, non-clinical, and actionable. No bullet points. Speak directly to them.",
+        messages: [{ role: 'user', content: `My recent mood log: ${recent}. Average mood: ${avg}/5. Give me a short insight.` }]
+      })
+    });
+    const data = await res.json();
+    insightText.textContent = data.content?.[0]?.text || "Keep tracking — patterns emerge with time. You're doing great by showing up every day 💙";
+  } catch {
+    insightText.textContent = "Keep logging your mood daily — even 30 seconds a day builds powerful self-awareness over time 💙";
+  }
+}
+
+// Init mood tracker on load
+function initMoodTracker() {
+  renderMoodChart();
+  renderMoodHistory();
+  if (moodLog.length >= 3) {
+    document.getElementById('mood-insight-card').style.display = 'block';
+    generateMoodInsight();
+  }
+}
+
+// ─── ONBOARDING ───
+let obStep = 1;
+const obTotalSteps = 7;
+let obProfile = {};
+
+function startOnboarding(name) {
+  obProfile = {};
+  obStep = 1;
+  document.getElementById('onboarding-screen').classList.add('visible');
+  document.getElementById('ob-nickname').value = (name && name !== 'Guest') ? name : '';
+  obGoTo(1);
+  window.scrollTo({ top: 0 });
+}
+
+function obGoTo(step) {
+  document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
+  if (step === 'finish') {
+    document.getElementById('ob-step-finish').classList.add('active');
+    document.getElementById('ob-progress').style.width = '100%';
+  } else {
+    const el = document.getElementById('ob-step-' + step);
+    if (el) el.classList.add('active');
+    document.getElementById('ob-progress').style.width = (step / obTotalSteps * 100) + '%';
+  }
+}
+
+function obSelect(groupId, btn) {
+  document.querySelectorAll('#' + groupId + ' .ob-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function obGetSelected(groupId) {
+  const sel = document.querySelector('#' + groupId + ' .ob-opt.selected');
+  return sel ? sel.textContent.trim() : null;
+}
+
+function obNext(step) {
+  if (step === 1) {
+    obProfile.nickname = document.getElementById('ob-nickname').value.trim() || (currentUser ? currentUser.name.split(' ')[0] : 'friend');
+    obProfile.age = obGetSelected('ob-age');
+    obProfile.role = obGetSelected('ob-role');
+    obProfile.field = obGetSelected('ob-field');
+  } else if (step === 2) {
+    obProfile.focus = obGetSelected('ob-focus');
+    obProfile.stress = obGetSelected('ob-stress');
+  } else if (step === 3) {
+    obProfile.cope = obGetSelected('ob-cope');
+    obProfile.stressFreq = obGetSelected('ob-stressfreq');
+  } else if (step === 4) {
+    obProfile.supportStyle = obGetSelected('ob-support');
+    obProfile.commChallenge = obGetSelected('ob-commchallenge');
+  } else if (step === 5) {
+    obProfile.vibe = obGetSelected('ob-vibe');
+    obProfile.calmMethod = obGetSelected('ob-calm');
+  } else if (step === 6) {
+    obProfile.improve = obGetSelected('ob-improve');
+    obProfile.goalText = document.getElementById('ob-goal-text').value.trim();
+  }
+  obStep = step + 1;
+  obGoTo(obStep);
+  document.getElementById('onboarding-screen').scrollTop = 0;
+}
+
+function obBack(step) {
+  obStep = step - 1;
+  obGoTo(obStep);
+  document.getElementById('onboarding-screen').scrollTop = 0;
+}
+
+function obFinish() {
+  obProfile.usage = obGetSelected('ob-usage');
+  localStorage.setItem('mindrift_profile', JSON.stringify(obProfile));
+  const nick = obProfile.nickname || (currentUser ? currentUser.name.split(' ')[0] : 'friend');
+  document.getElementById('ob-finish-name').textContent = nick;
+  const rows = [
+    { k: '👤 Name', v: nick },
+    { k: '🎯 Focus', v: obProfile.focus || '—' },
+    { k: '😰 Main stress', v: obProfile.stress || '—' },
+    { k: '💬 Support style', v: obProfile.supportStyle || '—' },
+    { k: '✨ Vibe', v: obProfile.vibe || '—' },
+    { k: '🏆 Goal', v: obProfile.improve || '—' },
+    { k: '⏰ Usage time', v: obProfile.usage || '—' },
+  ];
+  const preview = document.getElementById('ob-profile-preview');
+  preview.innerHTML = rows.map(r => `<div class="ob-profile-row"><span class="ob-profile-key">${r.k}</span><span class="ob-profile-val">${r.v.replace(/^[🎓📚📝💼⚡🌀📝🔮💔🪞🏠🤐🗣️🎮😶🔤😟👂💡🚀🎯😎🤗⚙️💪🗣️🧘📐🌙🔀😰]+ /, '')}</span></div>`).join('');
+  obGoTo('finish');
+  document.getElementById('onboarding-screen').scrollTop = 0;
+}
+
+function obEnterApp() {
+  document.getElementById('onboarding-screen').classList.remove('visible');
+  loginUser(currentUser);
+}
+
+function obSkipAll() {
+  obProfile = {};
+  document.getElementById('onboarding-screen').classList.remove('visible');
+  loginUser(currentUser);
+}
+
+function applyProfileToApp() {
+  const profile = JSON.parse(localStorage.getItem('mindrift_profile') || '{}');
+  if (!profile.supportStyle) return;
+  const personaMap = { 'Just listen': 'calm', 'Give advice': 'mentor', 'Motivate': 'bro', 'Be direct': 'mentor' };
+  let matchedPersona = 'bro';
+  for (const [key, val] of Object.entries(personaMap)) {
+    if (profile.supportStyle.includes(key)) { matchedPersona = val; break; }
+  }
+  currentPersona = matchedPersona;
+  setTimeout(() => {
+    document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+    const idxMap = { bro: 0, sis: 1, friend: 2, mentor: 3, calm: 4 };
+    const btns = document.querySelectorAll('.persona-btn');
+    if (btns[idxMap[matchedPersona]]) btns[idxMap[matchedPersona]].classList.add('active');
+    if (profile.nickname) {
+      const firstMsg = document.querySelector('#ss-chat-window .chat-bubble.bot');
+      if (firstMsg) {
+        const stress = profile.stress ? profile.stress.replace(/^[^a-zA-Z]*/, '').toLowerCase() : 'everything on your plate';
+        firstMsg.textContent = `Hey ${profile.nickname}! I know you're dealing with ${stress} right now — this is your safe space. No judgment, real talk only 💙`;
+      }
+    }
+  }, 400);
+}
+
+</script>
+</body>
+</html>
